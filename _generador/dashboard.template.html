@@ -1,0 +1,887 @@
+<title>Sotracar · Dirección Financiera</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light dark;
+    --page:#eef1f6; --surface:#ffffff; --surface-2:#f5f7fa;
+    --ink:#151a23; --ink-2:#4d5568; --muted:#868da0;
+    --border:rgba(21,26,35,0.10); --border-strong:rgba(21,26,35,0.18);
+    --blue:#2a78d6; --orange:#eb6834; --aqua:#1baf7a; --yellow:#eda100; --red:#e34948; --violet:#4a3aa7;
+    --good:#0ca30c; --warning:#c98500; --critical:#d03b3b;
+    --shadow: 0 1px 2px rgba(21,26,35,0.04), 0 8px 24px -12px rgba(21,26,35,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#0c0e13; --surface:#161a22; --surface-2:#1d222c;
+      --ink:#f2f4f8; --ink-2:#c1c7d6; --muted:#8991a5;
+      --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.16);
+      --blue:#3987e5; --orange:#e0692f; --aqua:#22b184; --yellow:#e0b23c; --red:#e66767; --violet:#9085e9;
+      --good:#3fbf5f; --warning:#e0b23c; --critical:#e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0c0e13; --surface:#161a22; --surface-2:#1d222c;
+    --ink:#f2f4f8; --ink-2:#c1c7d6; --muted:#8991a5;
+    --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.16);
+    --blue:#3987e5; --orange:#e0692f; --aqua:#22b184; --yellow:#e0b23c; --red:#e66767; --violet:#9085e9;
+    --good:#3fbf5f; --warning:#e0b23c; --critical:#e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--page); color:var(--ink); font-family:"IBM Plex Sans", system-ui, -apple-system, sans-serif; -webkit-font-smoothing:antialiased;}
+  .num{font-family:"IBM Plex Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums;}
+  h1,h2,h3,h4{font-family:"Libre Franklin", system-ui, sans-serif; text-wrap:balance; margin:0;}
+  a{color:var(--blue);}
+
+  .wrap{max-width:1280px; margin:0 auto; padding:26px 22px 72px;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid var(--border);}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{width:42px; height:42px; border-radius:10px; flex:none; background:linear-gradient(155deg, var(--blue), var(--violet)); display:flex; align-items:center; justify-content:center; color:#fff; font-family:"Libre Franklin"; font-weight:800; font-size:15px;}
+  .brand h1{font-size:21px; font-weight:800; letter-spacing:-0.01em;}
+  .brand p{margin:2px 0 0; font-size:12.5px; color:var(--muted);}
+  .badges{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .badge{font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:100px; border:1px solid var(--border-strong); color:var(--ink-2); white-space:nowrap;}
+  .badge.real{background:color-mix(in srgb, var(--aqua) 16%, transparent); border-color:color-mix(in srgb, var(--aqua) 45%, transparent); color:var(--ink);}
+
+  .controls{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:24px;}
+  .year-toggle{display:inline-flex; gap:3px; background:var(--surface-2); padding:4px; border-radius:11px; border:1px solid var(--border); flex-wrap:wrap;}
+  .year-toggle button{border:none; background:transparent; padding:8px 15px; border-radius:8px; font-family:"IBM Plex Sans", sans-serif; font-weight:600; font-size:13px; color:var(--ink-2); cursor:pointer; transition:background .12s;}
+  .year-toggle button:hover{color:var(--ink);}
+  .year-toggle button.active{background:var(--surface); color:var(--ink); box-shadow:var(--shadow);}
+  .ctl-note{font-size:12px; color:var(--muted);}
+
+  section{margin-bottom:40px; scroll-margin-top:16px;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .section-head h2{font-size:14px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-2);}
+  .section-head .note{font-size:12.5px; color:var(--muted); max-width:640px; text-align:right;}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;}
+  @media (max-width:980px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .kpi-grid{grid-template-columns:1fr;} }
+  .kpi{background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:15px 16px 14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:7px; min-width:0;}
+  .kpi-label{font-size:11.5px; color:var(--muted); font-weight:600; letter-spacing:.01em; text-transform:uppercase;}
+  .kpi-value{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
+  .kpi-sub{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2); flex-wrap:wrap;}
+  .pill{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; padding:2px 7px; border-radius:100px;}
+  .pill.good{color:var(--good); background:color-mix(in srgb, var(--good) 15%, transparent);}
+  .pill.warn{color:var(--warning); background:color-mix(in srgb, var(--warning) 18%, transparent);}
+  .pill.bad{color:var(--critical); background:color-mix(in srgb, var(--critical) 15%, transparent);}
+  .pill.flat{color:var(--muted); background:color-mix(in srgb, var(--muted) 16%, transparent);}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:940px){ .grid-2,.grid-3{grid-template-columns:1fr;} }
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:17px 19px 15px; box-shadow:var(--shadow);}
+  .card h3{font-size:14px; font-weight:700;}
+  .card .sub{font-size:12px; color:var(--muted); margin-top:2px; margin-bottom:6px;}
+  .legend{display:flex; gap:14px; margin-top:8px; flex-wrap:wrap;}
+  .legend span{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2);}
+  .legend i{width:9px; height:9px; border-radius:2px; display:inline-block; flex:none;}
+  svg text{font-family:"IBM Plex Mono", monospace;}
+  .axis-label{fill:var(--muted); font-size:10px;}
+  .gridline{stroke:var(--border); stroke-width:1;}
+  .baseline{stroke:var(--border-strong); stroke-width:1;}
+  .chart-holder{position:relative;}
+  .tooltip{position:absolute; pointer-events:none; opacity:0; transition:opacity .12s ease; background:var(--ink); color:var(--page); font-size:11.5px; font-family:"IBM Plex Mono",monospace; padding:6px 9px; border-radius:7px; white-space:nowrap; transform:translate(-50%,-118%); z-index:5; box-shadow:0 6px 16px rgba(0,0,0,.25);}
+
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .data-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .data-table th{text-align:right; font-size:10.5px; text-transform:uppercase; letter-spacing:.02em; color:var(--muted); font-weight:600; padding:7px 9px; border-bottom:1px solid var(--border-strong); white-space:nowrap;}
+  .data-table th.name-col{text-align:left; min-width:210px;}
+  .data-table td{padding:7px 9px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table td.name{color:var(--ink); font-weight:500;}
+  .data-table td.val{font-family:"IBM Plex Mono",monospace; text-align:right; font-weight:500; white-space:nowrap;}
+  .data-table td.val.strong,.data-table tr.total-row td{font-weight:700;}
+  .data-table tr.total-row td{border-top:1px solid var(--border-strong); border-bottom:none;}
+  .data-table tr.cat-row td{padding-top:14px; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:700; border-bottom:none;}
+  .data-table tr.hl td{background:color-mix(in srgb, var(--blue) 7%, transparent);}
+  .data-table td.muted{color:var(--muted);}
+  .delta-pos{color:var(--good);} .delta-neg{color:var(--critical);}
+
+  .acct-card{background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow); margin-bottom:10px; overflow:hidden;}
+  .acct-card summary{list-style:none; cursor:pointer; padding:13px 17px; display:flex; align-items:center; justify-content:space-between; font-family:"Libre Franklin"; font-weight:700; font-size:13.5px; gap:12px; flex-wrap:wrap;}
+  .acct-card summary::-webkit-details-marker{display:none;}
+  .acct-card summary .chev{color:var(--muted); font-size:11px; transition:transform .15s ease; flex:none;}
+  .acct-card[open] summary .chev{transform:rotate(90deg);}
+  .acct-card summary .meta{font-size:12px; color:var(--muted); font-weight:500; font-family:"IBM Plex Mono",monospace;}
+  .acct-card .body{padding:2px 17px 15px;}
+
+  .barlist{display:flex; flex-direction:column; gap:9px;}
+  .barlist .row{display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:center; font-size:12.5px;}
+  .barlist .row .lbl{color:var(--ink-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .barlist .row .amt{font-family:"IBM Plex Mono",monospace; font-weight:600; white-space:nowrap;}
+  .barlist .row .track{grid-column:1 / -1; height:7px; border-radius:5px; background:var(--surface-2); overflow:hidden;}
+  .barlist .row .track i{display:block; height:100%; border-radius:5px; background:var(--blue);}
+
+  .pe-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:11px; margin-bottom:15px;}
+  @media (max-width:820px){ .pe-grid{grid-template-columns:repeat(2,1fr);} }
+  .pe-stat{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:11px 13px;}
+  .pe-stat .l{font-size:11px; color:var(--muted); font-weight:600;}
+  .pe-stat .v{font-family:"IBM Plex Mono",monospace; font-size:16px; font-weight:600; margin-top:3px;}
+  .pe-stat.hl{background:color-mix(in srgb, var(--aqua) 14%, var(--surface-2)); border-color:color-mix(in srgb, var(--aqua) 40%, var(--border));}
+  .pe-bar{height:26px; border-radius:8px; overflow:hidden; display:flex; border:1px solid var(--border);}
+  .pe-bar div{height:100%; display:flex; align-items:center; padding-left:9px; font-size:11px; color:#fff; font-weight:600; white-space:nowrap; overflow:hidden;}
+  .pe-caption{display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:5px;}
+
+  .callout{background:color-mix(in srgb, var(--blue) 8%, var(--surface)); border:1px solid color-mix(in srgb, var(--blue) 26%, var(--border)); border-radius:10px; padding:11px 14px; font-size:12.5px; color:var(--ink-2); margin-top:12px;}
+  .callout.warn{background:color-mix(in srgb, var(--warning) 10%, var(--surface)); border-color:color-mix(in srgb, var(--warning) 34%, var(--border));}
+  .callout.bad{background:color-mix(in srgb, var(--critical) 9%, var(--surface)); border-color:color-mix(in srgb, var(--critical) 30%, var(--border));}
+  .callout b{color:var(--ink);}
+
+  .spark{display:inline-block; vertical-align:middle;}
+  footer{border-top:1px solid var(--border); padding-top:16px; margin-top:8px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .tabs{display:inline-flex; gap:3px; background:var(--surface-2); padding:3px; border-radius:9px; border:1px solid var(--border); margin-bottom:12px;}
+  .tabs button{border:none; background:transparent; padding:6px 12px; border-radius:6px; font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:12px; color:var(--ink-2); cursor:pointer;}
+  .tabs button.active{background:var(--surface); color:var(--ink); box-shadow:var(--shadow);}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">ST</div>
+      <div>
+        <h1>Sotracar · Dirección Financiera</h1>
+        <p id="brandSub">Panel integral 2020–2026 · construido desde el Libro Auxiliar</p>
+      </div>
+    </div>
+    <div class="badges" id="badges"></div>
+  </div>
+
+  <div class="controls">
+    <div class="year-toggle" id="yearToggle"></div>
+    <span class="ctl-note" id="ctlNote"></span>
+  </div>
+
+  <!-- RESUMEN EJECUTIVO -->
+  <section id="sec-resumen">
+    <div class="section-head">
+      <h2 id="kpiTitle">Resumen ejecutivo</h2>
+      <span class="note" id="kpiNote"></span>
+    </div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+    <div class="callout" id="resumenNarr"></div>
+  </section>
+
+  <!-- TENDENCIA MULTIANUAL -->
+  <section id="sec-tendencia">
+    <div class="section-head">
+      <h2>Tendencia 2020–2026</h2>
+      <span class="note">Cifras anuales. 2026 corresponde al acumulado del año a la fecha de corte.</span>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Ingresos y utilidad neta</h3>
+        <div class="sub">Barras: ingresos operacionales · línea: utilidad neta (millones COP)</div>
+        <div class="chart-holder"><svg id="chTrendIng" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-ti"></div></div>
+        <div class="legend"><span><i style="background:var(--blue)"></i>Ingresos</span><span><i style="background:var(--orange)"></i>Utilidad neta</span></div>
+      </div>
+      <div class="card">
+        <h3>Márgenes</h3>
+        <div class="sub">Sobre ingresos operacionales</div>
+        <div class="chart-holder"><svg id="chTrendMar" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-tm"></div></div>
+        <div class="legend"><span><i style="background:var(--aqua)"></i>Bruto</span><span><i style="background:var(--violet)"></i>EBITDA</span><span><i style="background:var(--orange)"></i>Neto</span></div>
+      </div>
+      <div class="card">
+        <h3>Deuda financiera y EBITDA</h3>
+        <div class="sub">Saldo de obligaciones financieras a fin de año vs. EBITDA anual (millones COP)</div>
+        <div class="chart-holder"><svg id="chTrendDebt" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-td"></div></div>
+        <div class="legend"><span><i style="background:var(--red)"></i>Deuda financiera</span><span><i style="background:var(--violet)"></i>EBITDA</span><span><i style="background:var(--muted)"></i>Deuda neta / EBITDA</span></div>
+      </div>
+      <div class="card">
+        <h3>Capital de trabajo y caja</h3>
+        <div class="sub">Fin de año (millones COP)</div>
+        <div class="chart-holder"><svg id="chTrendWc" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-tw"></div></div>
+        <div class="legend"><span><i style="background:var(--yellow)"></i>Capital de trabajo</span><span><i style="background:var(--blue)"></i>Caja</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTADO DE RESULTADOS -->
+  <section id="sec-pyg">
+    <div class="section-head">
+      <h2 id="pygTitle">Estado de resultados</h2>
+      <span class="note">Metodología estándar: la depreciación es gasto operativo; EBITDA = utilidad operacional + depreciación y amortización.</span>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <h3 id="wfTitle">Puente de ingresos a utilidad neta</h3>
+      <div class="sub" id="wfSub"></div>
+      <div class="chart-holder"><svg id="waterfall" width="100%" viewBox="0 0 1100 320" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-wf"></div></div>
+    </div>
+    <div class="card">
+      <div class="tabs" id="pygTabs"><button data-mode="anual" class="active">Anual vs. año anterior</button><button data-mode="mensual">Detalle mensual</button></div>
+      <div class="table-scroll"><table class="data-table" id="pygTable"></table></div>
+    </div>
+  </section>
+
+  <!-- EVOLUCION MENSUAL -->
+  <section id="sec-mensual">
+    <div class="section-head">
+      <h2 id="mesTitle">Evolución mensual</h2>
+      <span class="note" id="mesNote"></span>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Ingresos vs. utilidad neta</h3>
+        <div class="sub">Millones COP por mes</div>
+        <div class="chart-holder"><svg id="chMesIng" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-mi"></div></div>
+        <div class="legend"><span><i style="background:var(--blue)"></i>Ingresos</span><span><i style="background:var(--orange)"></i>Utilidad neta</span></div>
+      </div>
+      <div class="card">
+        <h3>Saldo de caja a fin de mes</h3>
+        <div class="sub">Efectivo, bancos y fiducuentas (grupo 11) — millones COP</div>
+        <div class="chart-holder"><svg id="chMesCaja" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-mc"></div></div>
+      </div>
+    </div>
+    <div class="callout" id="mesCajaNote"></div>
+  </section>
+
+  <!-- ANALISIS POR CUENTA -->
+  <section id="sec-cuentas">
+    <div class="section-head">
+      <h2 id="ctaTitle">Análisis por cuenta contable</h2>
+      <span class="note">Principales cuentas de cada rubro con su evolución mensual. El resto se agrupa en "otras".</span>
+    </div>
+    <div id="ctaAccounts"></div>
+  </section>
+
+  <!-- BALANCE -->
+  <section id="sec-balance">
+    <div class="section-head">
+      <h2 id="balTitle">Balance y estructura financiera</h2>
+      <span class="note" id="balNote"></span>
+    </div>
+    <div id="balBody"></div>
+  </section>
+
+  <!-- TERCEROS -->
+  <section id="sec-terceros">
+    <div class="section-head">
+      <h2 id="tercTitle">Concentración por tercero</h2>
+      <span class="note">Facturación por cliente, compras/fletes por proveedor y saldo con acreedores financieros del año.</span>
+    </div>
+    <div class="grid-3" id="tercBody"></div>
+  </section>
+
+  <!-- PUNTO DE EQUILIBRIO -->
+  <section id="sec-pe">
+    <div class="section-head">
+      <h2 id="peTitle">Punto de equilibrio</h2>
+      <span class="note">Costo variable = costo de prestación del servicio. Costo fijo = gastos de administración + gastos financieros + D&A.</span>
+    </div>
+    <div class="card" id="peBody"></div>
+  </section>
+
+  <!-- SCORECARD -->
+  <section id="sec-scorecard">
+    <div class="section-head">
+      <h2>Tablero de indicadores 2020–2026</h2>
+      <span class="note">Indicadores anuales. Los de balance (liquidez, endeudamiento, ROE) son estimados en los años marcados con ~ mientras el balance se consolida.</span>
+    </div>
+    <div class="card"><div class="table-scroll"><table class="data-table" id="scoreTable"></table></div></div>
+  </section>
+
+  <footer>
+    <span id="footNote"></span>
+    <span>Cifras en pesos colombianos (COP) · Preparado por PYC Consultoría Integral para Sotracar</span>
+  </footer>
+</div>
+
+<script id="datos" type="application/json">__DATOS__</script>
+<script>
+(function(){
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("datos").textContent);
+  const YEARS = DATA.meta.años;
+  const MESES = DATA.meses;
+  const css = getComputedStyle(document.documentElement);
+  const cvar = n => css.getPropertyValue(n).trim();
+
+  // ---------- format ----------
+  const nf = new Intl.NumberFormat("es-CO");
+  const sign = v => v < 0 ? "−" : "";
+  const fmtFull = v => sign(v) + "$" + nf.format(Math.abs(Math.round(v)));
+  function fmtM(v){
+    const a = Math.abs(v);
+    if (a < 1e6) return a < 1e3 ? fmtFull(v) : sign(v) + "$" + nf.format(Math.round(a/1e3)) + " mil";
+    const m = a / 1e6;
+    const dec = m < 100 ? 1 : 0;
+    return sign(v) + "$" + m.toLocaleString("es-CO",{minimumFractionDigits:dec, maximumFractionDigits:dec}) + " M";
+  }
+  const fmtPct = (v,d=1) => (v*100).toLocaleString("es-CO",{minimumFractionDigits:d,maximumFractionDigits:d}) + "%";
+  const fmtX = v => v.toLocaleString("es-CO",{maximumFractionDigits:2}) + "x";
+  const sum = a => a.reduce((x,y)=>x+y,0);
+  const sumTo = (a,n) => a.slice(0,n).reduce((x,y)=>x+y,0);
+
+  let year = YEARS[YEARS.length-1];
+  const li = y => (DATA.meta.ultimo_mes[y] || 12) - 1;      // last month index with data
+  const nMonths = y => li(y) + 1;
+  const prevYear = y => YEARS.includes(y-1) ? y-1 : null;
+
+  // ---------- badges + controls ----------
+  (function(){
+    const corte = MESES[li(year)] + " " + year;
+    document.getElementById("badges").innerHTML =
+      `<span class="badge real">● Datos reales · Libro Auxiliar 2020–2026</span>`+
+      `<span class="badge">${DATA.meta.n_cuentas} cuentas contables</span>`+
+      `<span class="badge">Corte 2026: ${MESES[li(2026)]}</span>`;
+    const yt = document.getElementById("yearToggle");
+    yt.innerHTML = YEARS.map(y=>`<button data-y="${y}">${y}</button>`).join("");
+    yt.querySelectorAll("button").forEach(b=> b.addEventListener("click", ()=> setYear(+b.dataset.y)));
+    document.getElementById("footNote").textContent = DATA.meta.metodologia;
+  })();
+
+  function setYear(y){
+    year = y;
+    document.querySelectorAll("#yearToggle button").forEach(b=> b.classList.toggle("active", +b.dataset.y===y));
+    render();
+  }
+
+  // ================= chart helpers =================
+  function axis(s, x0, x1, minV, maxV, y, ticks, fmt){
+    for (let t=0;t<=ticks;t++){
+      const v = minV + (maxV-minV)*t/ticks, yy = y(v);
+      s.push(`<line class="gridline" x1="${x0}" x2="${x1}" y1="${yy}" y2="${yy}"/>`);
+      s.push(`<text class="axis-label" x="${x0-7}" y="${yy+3}" text-anchor="end">${fmt(v)}</text>`);
+    }
+    if (minV < 0 && maxV > 0) s.push(`<line class="baseline" x1="${x0}" x2="${x1}" y1="${y(0)}" y2="${y(0)}"/>`);
+  }
+  function bindTip(svg, sel, tt, fn){
+    svg.querySelectorAll(sel).forEach(el=>{
+      el.style.cursor="pointer";
+      el.addEventListener("mousemove", e=>{
+        const r = svg.getBoundingClientRect();
+        tt.style.left=(e.clientX-r.left)+"px"; tt.style.top=(e.clientY-r.top)+"px"; tt.style.opacity=1;
+        tt.innerHTML = fn(+el.dataset.i);
+      });
+      el.addEventListener("mouseleave", ()=> tt.style.opacity=0);
+    });
+  }
+  // bars (one series) + optional line (second series), shared x
+  function barLine(id, ttId, labels, barVals, lineVals, opts){
+    opts = opts||{};
+    const svg = document.getElementById(id), tt = document.getElementById(ttId);
+    const W=620,H=300,padL=52,padR=opts.padR||14,padT=16,padB=28;
+    const n = labels.length;
+    const gW = (W-padL-padR)/n;
+    const bw = gW*0.52;
+    const allB = barVals.concat(lineVals||[]);
+    let maxV = Math.max(...allB, 0)*1.12;
+    let minV = Math.min(...allB, 0);
+    minV = minV<0 ? minV*1.15 : 0;
+    const y = v => padT + (H-padT-padB)*(1-(v-minV)/(maxV-minV));
+    const s = [];
+    axis(s, padL, W-padR, minV, maxV, y, 4, v=> (v/1e6).toLocaleString("es-CO",{maximumFractionDigits:0}));
+    barVals.forEach((v,i)=>{
+      const cx = padL + i*gW + gW/2;
+      s.push(`<rect class="pt" data-i="${i}" x="${cx-bw/2}" y="${y(Math.max(v,0))}" width="${bw}" height="${Math.abs(y(0)-y(v))}" rx="3" fill="${opts.barColor||cvar('--blue')}"/>`);
+      s.push(`<text class="axis-label" x="${cx}" y="${H-padB+16}" text-anchor="middle">${labels[i]}</text>`);
+    });
+    if (lineVals){
+      const cx = i => padL + i*gW + gW/2;
+      s.push(`<path d="M ${lineVals.map((v,i)=>cx(i)+','+y(v)).join(' L ')}" fill="none" stroke="${opts.lineColor||cvar('--orange')}" stroke-width="2.4" stroke-linejoin="round"/>`);
+      lineVals.forEach((v,i)=> s.push(`<circle class="pt" data-i="${i}" cx="${cx(i)}" cy="${y(v)}" r="3.4" fill="${cvar('--surface')}" stroke="${opts.lineColor||cvar('--orange')}" stroke-width="2"/>`));
+    }
+    svg.innerHTML = s.join("");
+    bindTip(svg, ".pt", tt, opts.tip || (i=> `${labels[i]} · ${fmtM(barVals[i])}${lineVals? " · "+fmtM(lineVals[i]):""}`));
+  }
+  // multi line, percentage or value
+  function multiLine(id, ttId, labels, series, opts){
+    opts = opts||{};
+    const svg = document.getElementById(id), tt = document.getElementById(ttId);
+    const W=620,H=300,padL=52,padR=14,padT=16,padB=28;
+    const n = labels.length;
+    const all = series.flatMap(s=>s.vals);
+    let maxV = Math.max(...all), minV = Math.min(...all, 0);
+    const pad = (maxV-minV)*0.12 || 1;
+    maxV += pad; if (minV<0) minV -= pad;
+    const x = i => padL + (n===1?0:i*((W-padL-padR)/(n-1)));
+    const y = v => padT + (H-padT-padB)*(1-(v-minV)/(maxV-minV));
+    const s = [];
+    axis(s, padL, W-padR, minV, maxV, y, 4, opts.fmtAxis || (v=>fmtPct(v,0)));
+    series.forEach(se=>{
+      s.push(`<path d="M ${se.vals.map((v,i)=>x(i)+','+y(v)).join(' L ')}" fill="none" stroke="${se.color}" stroke-width="2.4" stroke-linejoin="round"/>`);
+      se.vals.forEach((v,i)=> s.push(`<circle class="pt" data-s="${se.name}" data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="3.2" fill="${cvar('--surface')}" stroke="${se.color}" stroke-width="2"/>`));
+    });
+    labels.forEach((L,i)=> s.push(`<text class="axis-label" x="${x(i)}" y="${H-padB+16}" text-anchor="middle">${L}</text>`));
+    svg.innerHTML = s.join("");
+    bindTip(svg, ".pt", tt, i=> labels[i] + "<br>" + series.map(se=> `${se.name}: ${(opts.fmtTip||(v=>fmtPct(v)))(se.vals[i])}`).join(" · "));
+  }
+  function lineArea(id, ttId, labels, vals){
+    const svg = document.getElementById(id), tt = document.getElementById(ttId);
+    const W=620,H=300,padL=58,padR=14,padT=16,padB=28;
+    const n = vals.length;
+    const rMin=Math.min(...vals), rMax=Math.max(...vals);
+    const pad = Math.max((rMax-rMin)*0.15, 1e6);
+    const minV=rMin-pad, maxV=rMax+pad;
+    const x=i=> padL + i*((W-padL-padR)/(n-1));
+    const y=v=> padT + (H-padT-padB)*(1-(v-minV)/(maxV-minV));
+    const s=[];
+    axis(s, padL, W-padR, minV, maxV, y, 4, v=>(v/1e6).toLocaleString("es-CO",{maximumFractionDigits:0}));
+    const path = "M " + vals.map((v,i)=>x(i)+','+y(v)).join(" L ");
+    s.push(`<path d="${path} L ${x(n-1)},${y(minV)} L ${x(0)},${y(minV)} Z" fill="${cvar('--blue')}" opacity="0.12"/>`);
+    s.push(`<path d="${path}" fill="none" stroke="${cvar('--blue')}" stroke-width="2.3" stroke-linejoin="round"/>`);
+    vals.forEach((v,i)=> s.push(`<circle class="pt" data-i="${i}" cx="${x(i)}" cy="${y(v)}" r="${i===n-1?4:3}" fill="${cvar('--surface')}" stroke="${v<0?cvar('--red'):cvar('--blue')}" stroke-width="2"/>`));
+    labels.forEach((L,i)=> { if(i%Math.ceil(n/8)===0||i===n-1) s.push(`<text class="axis-label" x="${x(i)}" y="${H-padB+16}" text-anchor="middle">${L}</text>`); });
+    svg.innerHTML = s.join("");
+    bindTip(svg, ".pt", tt, i=> `${labels[i]}: ${fmtM(vals[i])}`);
+  }
+  function sparkSvg(vals, w=104, h=26){
+    const mn=Math.min(...vals,0), mx=Math.max(...vals,0);
+    const span = (mx-mn)||1;
+    const x=i=> vals.length<2?0:i*(w/(vals.length-1));
+    const y=v=> h-2-(v-mn)/span*(h-4);
+    const zero = mn<0&&mx>0 ? `<line x1="0" x2="${w}" y1="${y(0)}" y2="${y(0)}" stroke="var(--border-strong)" stroke-width="1"/>`:"";
+    return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${zero}<path d="M ${vals.map((v,i)=>x(i)+','+y(v)).join(' L ')}" fill="none" stroke="var(--blue)" stroke-width="1.6"/></svg>`;
+  }
+  function miniBars(vals, w=104, h=26){
+    const mx = Math.max(...vals.map(Math.abs), 1);
+    const n = vals.length, bw = w/n*0.72;
+    let s = `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`;
+    vals.forEach((v,i)=>{
+      const hh = Math.abs(v)/mx*(h-3);
+      s += `<rect x="${i*w/n + (w/n-bw)/2}" y="${v>=0? h-hh-1 : h-1}" width="${bw}" height="${Math.max(hh,0.6)}" rx="1" fill="${v>=0?'var(--blue)':'var(--red)'}" opacity="${v>=0?0.85:0.7}"/>`;
+    });
+    return s + "</svg>";
+  }
+  function deltaPill(cur, prev, opts){
+    opts = opts||{};
+    if (prev==null || prev===0 || !isFinite(prev)) return `<span class="pill flat">s/comparativo</span>`;
+    const d = (cur-prev)/Math.abs(prev);
+    const good = opts.invert ? d<0 : d>0;
+    const cls = Math.abs(d)<0.005 ? "flat" : (good ? "good":"bad");
+    const arrow = d>0.005?"▲":d<-0.005?"▼":"■";
+    return `<span class="pill ${cls}">${arrow} ${fmtPct(Math.abs(d),1)}</span>`;
+  }
+
+  // ================= RESUMEN =================
+  function renderResumen(){
+    const r = DATA.ratios[year], py = prevYear(year), rp = py && DATA.ratios[py];
+    const parcial = nMonths(year) < 12;
+    document.getElementById("kpiTitle").textContent = "Resumen ejecutivo · " + year + (parcial? ` (Ene–${MESES[li(year)]})` : "");
+    document.getElementById("kpiNote").textContent = DATA.meta.fuente;
+    document.getElementById("ctlNote").textContent = parcial
+      ? `${year}: acumulado de ${nMonths(year)} meses. Comparativos con el mismo periodo del año anterior donde aplica.`
+      : `${year}: año completo (12 meses).`;
+
+    const nm = nMonths(year);
+    const sameP = k => py ? sumTo(DATA.pyg[py][k], nm) : null;
+    const kpis = [
+      {l:"Ingresos operacionales", v:fmtM(r.ingresos), d:deltaPill(r.ingresos, sameP("ingresos")), s: parcial? `anualizado ${fmtM(r.ingresos_anualizado)}`:"vs. año anterior"},
+      {l:"Utilidad bruta", v:fmtM(r.util_bruta), d:deltaPill(r.margen_bruto, rp&&rp.margen_bruto), s:`margen ${fmtPct(r.margen_bruto)}`},
+      {l:"EBITDA", v:fmtM(r.ebitda), d:deltaPill(r.margen_ebitda, rp&&rp.margen_ebitda), s:`margen ${fmtPct(r.margen_ebitda)}`},
+      {l:"Utilidad neta", v:fmtM(r.util_neta), d:deltaPill(r.util_neta, sameP("util_neta")), s:`margen ${fmtPct(r.margen_neto)}`, tone: r.util_neta>=0?"good":"bad"},
+      {l:"Gasto financiero", v:fmtM(r.gasto_fin), d:deltaPill(r.carga_financiera, rp&&rp.carga_financiera, {invert:true}), s:`${fmtPct(r.carga_financiera)} de ingresos`},
+      {l:"Deuda financiera neta", v:fmtM(r.deuda_neta), d:deltaPill(r.deuda_neta, rp&&rp.deuda_neta, {invert:true}), s:`${fmtX(r.deuda_ebitda)} EBITDA`},
+      {l:"Razón corriente", v:fmtX(r.razon_corriente), d:deltaPill(r.razon_corriente, rp&&rp.razon_corriente), s:`cap. trabajo ${fmtM(r.capital_trabajo)}`, tone: r.razon_corriente>=1?"good":"bad", est:1},
+      {l:"Caja a fin de periodo", v:fmtM(r.caja_fin), d:deltaPill(r.caja_fin, rp&&rp.caja_fin), s:`cartera ${r.dias_cartera} d · proveedor ${r.dias_proveedor} d`, tone: r.caja_fin>=0?"":"bad"},
+    ];
+    const balEst = !r.balance_confiable;
+    document.getElementById("kpiGrid").innerHTML = kpis.map(k=>{
+      const est = k.est && balEst;
+      return `
+      <div class="kpi">
+        <div class="kpi-label">${k.l}${est?' <span title="Balance en consolidación para este año" style="color:var(--muted)">~</span>':''}</div>
+        <div class="kpi-value num" ${k.tone==="bad"?'style="color:var(--critical)"':k.tone==="good"?'style="color:var(--good)"':''}>${k.v}</div>
+        <div class="kpi-sub">${k.d||""}<span>${k.s}</span></div>
+      </div>`;}).join("");
+
+    // narrative
+    const rev = r.ingresos, un = r.util_neta;
+    const parts = [];
+    if (py){
+      const g = (rev/sameP("ingresos"))-1;
+      parts.push(`Ingresos ${g>=0?"crecen":"caen"} ${fmtPct(Math.abs(g))} ${parcial?"frente al mismo periodo de":"vs."} ${py}.`);
+    }
+    parts.push(`Margen bruto ${fmtPct(r.margen_bruto)}, EBITDA ${fmtPct(r.margen_ebitda)}, neto ${fmtPct(r.margen_neto)}.`);
+    parts.push(r.gasto_fin > r.util_neta
+      ? `El gasto financiero (${fmtM(r.gasto_fin)}) supera la utilidad neta (${fmtM(r.util_neta)}): la carga de deuda es el principal drenaje de resultado.`
+      : `El gasto financiero (${fmtM(r.gasto_fin)}) está por debajo de la utilidad neta.`);
+    parts.push(r.razon_corriente < 1
+      ? `Liquidez ajustada: razón corriente ${fmtX(r.razon_corriente)} y capital de trabajo negativo (${fmtM(r.capital_trabajo)}); la operación se financia con pasivo de corto plazo.`
+      : `Razón corriente ${fmtX(r.razon_corriente)}.`);
+    document.getElementById("resumenNarr").innerHTML = "<b>Lectura:</b> " + parts.join(" ");
+  }
+
+  // ================= TENDENCIA =================
+  function renderTendencia(){
+    const L = YEARS.map(String);
+    const ing = YEARS.map(y=>DATA.ratios[y].ingresos);
+    const un = YEARS.map(y=>DATA.ratios[y].util_neta);
+    barLine("chTrendIng","tt-ti", L, ing, un, {tip:i=>`${L[i]} · Ingresos ${fmtM(ing[i])} · Ut. neta ${fmtM(un[i])} (${fmtPct(DATA.ratios[YEARS[i]].margen_neto)})`});
+    multiLine("chTrendMar","tt-tm", L, [
+      {name:"Bruto", color:cvar('--aqua'), vals:YEARS.map(y=>DATA.ratios[y].margen_bruto)},
+      {name:"EBITDA", color:cvar('--violet'), vals:YEARS.map(y=>DATA.ratios[y].margen_ebitda)},
+      {name:"Neto", color:cvar('--orange'), vals:YEARS.map(y=>DATA.ratios[y].margen_neto)},
+    ]);
+    const debt = YEARS.map(y=>DATA.ratios[y].deuda_fin);
+    const ebd = YEARS.map(y=>DATA.ratios[y].ebitda * 12/DATA.ratios[y].meses);
+    barLine("chTrendDebt","tt-td", L, debt, ebd, {barColor:cvar('--red'), lineColor:cvar('--violet'),
+      tip:i=>`${L[i]} · Deuda ${fmtM(debt[i])} · EBITDA ${fmtM(ebd[i])} · Deuda neta/EBITDA ${fmtX(DATA.ratios[YEARS[i]].deuda_ebitda)}`});
+    const wc = YEARS.map(y=>DATA.ratios[y].capital_trabajo);
+    const caja = YEARS.map(y=>DATA.ratios[y].caja_fin);
+    barLine("chTrendWc","tt-tw", L, wc, caja, {barColor:cvar('--yellow'), lineColor:cvar('--blue'),
+      tip:i=>`${L[i]} · Capital de trabajo ${fmtM(wc[i])} · Caja ${fmtM(caja[i])}`});
+  }
+
+  // ================= WATERFALL =================
+  function renderWaterfall(){
+    const p = DATA.pyg[year], n = nMonths(year);
+    const g = k => sumTo(p[k], n);
+    const ing = g("ingresos"), costo = g("costo_servicio"), gAdm = g("gasto_admon")+g("gasto_ventas"),
+          otrosIng = g("ingresos_noop"), gFin = g("gasto_fin"), otrosEg = g("otros_egresos"), imp = g("impuesto");
+    const ub = ing-costo, ebit = ub-gAdm, uai = ebit+otrosIng-gFin-otrosEg, un = uai-imp;
+    document.getElementById("wfSub").textContent = `Acumulado ${year} (${MESES[0]}–${MESES[n-1]}) · millones COP`;
+    const steps = [
+      {l:"Ingresos", d:ing, kind:"total", c:cvar('--blue')},
+      {l:"Costo servicio", d:-costo, c:cvar('--red')},
+      {l:"Utilidad bruta", d:ub, kind:"sub", c:cvar('--aqua')},
+      {l:"Gastos admón.", d:-gAdm, c:cvar('--red')},
+      {l:"Utilidad operacional", d:ebit, kind:"sub", c:cvar('--aqua')},
+      {l:"Otros ingresos", d:otrosIng, c:cvar('--aqua')},
+      {l:"Gastos financieros", d:-gFin, c:cvar('--red')},
+      {l:"Otros egresos", d:-otrosEg, c:cvar('--red')},
+      {l:"Impuesto renta", d:-imp, c:cvar('--red')},
+      {l:"Utilidad neta", d:un, kind:"total", c: un>=0?cvar('--blue'):cvar('--red')},
+    ];
+    const svg = document.getElementById("waterfall"), tt = document.getElementById("tt-wf");
+    const W=1100,H=320,padL=92,padR=16,padT=18,padB=52;
+    let run=0; const bars2=[];
+    steps.forEach(s=>{
+      if (s.kind==="total"){ run=s.d; bars2.push({l:s.l,delta:s.d,c:s.c,start:0,end:s.d}); }
+      else if (s.kind==="sub"){ bars2.push({l:s.l,delta:run,c:s.c,start:0,end:run}); }
+      else { const st=run,en=run+s.d; run=en; bars2.push({l:s.l,delta:s.d,c:s.c,start:st,end:en}); }
+    });
+    const maxV = Math.max(...bars2.map(b=>Math.max(b.start,b.end)),0)*1.08;
+    const minV = Math.min(...bars2.map(b=>Math.min(b.start,b.end)),0)*1.12;
+    const x = i => padL + i*((W-padL-padR)/bars2.length);
+    const bw = ((W-padL-padR)/bars2.length)*0.62;
+    const y = v => padT + (H-padT-padB)*(1-(v-minV)/(maxV-minV));
+    const s = [];
+    axis(s, padL, W-padR, minV, maxV, y, 4, v=>(v/1e6).toLocaleString("es-CO",{maximumFractionDigits:0}));
+    bars2.forEach((b,i)=>{
+      const xx = x(i) + (((W-padL-padR)/bars2.length)-bw)/2;
+      const top = y(Math.max(b.start,b.end)), bot = y(Math.min(b.start,b.end));
+      s.push(`<rect class="pt" data-i="${i}" x="${xx}" y="${top}" width="${bw}" height="${Math.max(bot-top,2)}" rx="3" fill="${b.c}"/>`);
+      s.push(`<text class="axis-label" x="${xx+bw/2}" y="${y(Math.max(b.start,b.end))-5}" text-anchor="middle" font-size="9">${(b.delta/1e6).toLocaleString("es-CO",{maximumFractionDigits:0})}</text>`);
+      const words = b.l.split(" ");
+      s.push(`<text class="axis-label" x="${xx+bw/2}" y="${H-padB+14}" text-anchor="middle" font-size="9">${words[0]}</text>`);
+      if (words[1]) s.push(`<text class="axis-label" x="${xx+bw/2}" y="${H-padB+24}" text-anchor="middle" font-size="9">${words.slice(1).join(" ")}</text>`);
+    });
+    svg.innerHTML = s.join("");
+    bindTip(svg, ".pt", tt, i=> `${bars2[i].l}: ${fmtM(bars2[i].delta)}`);
+  }
+
+  // ================= PYG TABLE =================
+  let pygMode = "anual";
+  document.getElementById("pygTabs").addEventListener("click", e=>{
+    if (!e.target.dataset.mode) return;
+    pygMode = e.target.dataset.mode;
+    document.querySelectorAll("#pygTabs button").forEach(b=> b.classList.toggle("active", b.dataset.mode===pygMode));
+    renderPygTable();
+  });
+  const PYG_ROWS = [
+    {k:"ingresos", n:"Ingresos operacionales", strong:1},
+    {k:"costo_servicio", n:"(−) Costo de prestación del servicio", neg:1},
+    {k:"util_bruta", n:"Utilidad bruta", strong:1, hl:1},
+    {k:"gasto_admon", n:"(−) Gastos de administración", neg:1},
+    {k:"gasto_ventas", n:"(−) Gastos de ventas", neg:1, hideIfZero:1},
+    {k:"ebit", n:"Utilidad operacional (EBIT)", strong:1, hl:1},
+    {k:"dep", n:"(+) Depreciación y amortización", info:1},
+    {k:"ebitda", n:"EBITDA", strong:1, hl:1},
+    {k:"ingresos_noop", n:"(+) Otros ingresos", hideIfZero:1},
+    {k:"gasto_fin", n:"(−) Gastos financieros", neg:1},
+    {k:"otros_egresos", n:"(−) Otros egresos", neg:1, hideIfZero:1},
+    {k:"uai", n:"Utilidad antes de impuestos", strong:1},
+    {k:"impuesto", n:"(−) Impuesto de renta", neg:1},
+    {k:"util_neta", n:"Utilidad neta", strong:1, hl:1},
+  ];
+  function renderPygTable(){
+    const p = DATA.pyg[year], n = nMonths(year);
+    const t = document.getElementById("pygTable");
+    if (pygMode==="mensual"){
+      let h = `<thead><tr><th class="name-col">Concepto</th>${MESES.slice(0,n).map(m=>`<th>${m}</th>`).join("")}<th>Acum.</th></tr></thead><tbody>`;
+      PYG_ROWS.forEach(r=>{
+        if (r.hideIfZero && sumTo(p[r.k],n)===0) return;
+        const vals = p[r.k].slice(0,n);
+        h += `<tr class="${r.hl?'hl':''}"><td class="name ${r.strong?'':'muted'}" style="${r.strong?'font-weight:700':''}">${r.n}</td>`+
+          vals.map(v=>`<td class="val ${r.strong?'strong':''}">${fmtM(v)}</td>`).join("")+
+          `<td class="val strong">${fmtM(sum(vals))}</td></tr>`;
+      });
+      t.innerHTML = h + "</tbody>";
+      return;
+    }
+    const py = prevYear(year);
+    const partial = n < 12;
+    const lbl = partial ? ` · ${n}m` : "";
+    let h = `<thead><tr><th class="name-col">Concepto</th><th>${year}${lbl}</th>`+
+      (py?`<th>${py}${lbl}</th><th>Var. %</th>`:"")+`<th>% ingresos</th><th>Tendencia mensual</th></tr></thead><tbody>`;
+    const ingCur = sumTo(p.ingresos,n);
+    PYG_ROWS.forEach(r=>{
+      if (r.hideIfZero && sumTo(p[r.k],n)===0) return;
+      const cur = sumTo(p[r.k],n);
+      const prev = py ? sumTo(DATA.pyg[py][r.k], n) : null;   // same number of months
+      let varc = "";
+      if (py && prev!==0 && isFinite(prev)){
+        const d = (cur-prev)/Math.abs(prev);
+        const good = r.neg ? d<0 : d>0;
+        varc = `<td class="val ${Math.abs(d)<0.005?'muted':(good?'delta-pos':'delta-neg')}">${d>0?'+':''}${fmtPct(d,1)}</td>`;
+      } else if (py) varc = `<td class="val muted">—</td>`;
+      h += `<tr class="${r.hl?'hl':''}">`+
+        `<td class="name" style="${r.strong?'font-weight:700':r.info?'color:var(--muted)':''}">${r.n}</td>`+
+        `<td class="val ${r.strong?'strong':''}">${fmtM(cur)}</td>`+
+        (py?`<td class="val">${fmtM(prev)}</td>${varc}`:"")+
+        `<td class="val muted">${ingCur?fmtPct(cur/ingCur,1):"—"}</td>`+
+        `<td>${miniBars(p[r.k].slice(0,n))}</td></tr>`;
+    });
+    t.innerHTML = h + "</tbody>";
+  }
+
+  // ================= MENSUAL =================
+  function renderMensual(){
+    const p = DATA.pyg[year], n = nMonths(year), L = MESES.slice(0,n);
+    document.getElementById("mesTitle").textContent = "Evolución mensual · " + year;
+    document.getElementById("mesNote").textContent = `${n} ${n===1?'mes':'meses'} con movimiento en ${year}.`;
+    barLine("chMesIng","tt-mi", L, p.ingresos.slice(0,n), p.util_neta.slice(0,n), {
+      tip:i=>`${L[i]} ${year} · Ingresos ${fmtM(p.ingresos[i])} · Ut. neta ${fmtM(p.util_neta[i])}`});
+    const caja = DATA.bsheet_serie[year].caja.slice(0,n);
+    lineArea("chMesCaja","tt-mc", L, caja);
+    const negs = caja.filter(v=>v<0).length;
+    const note = document.getElementById("mesCajaNote");
+    if (negs>0){
+      note.className = "callout bad";
+      note.innerHTML = `<b>Atención:</b> el saldo de caja cerró negativo en ${negs} de ${n} meses de ${year} (mínimo ${fmtM(Math.min(...caja))}). La operación se sostiene con sobregiros y cupos rotativos de corto plazo.`;
+    } else {
+      note.className = "callout";
+      note.innerHTML = `Saldo de caja siempre positivo en ${year}; mínimo ${fmtM(Math.min(...caja))}, máximo ${fmtM(Math.max(...caja))}.`;
+    }
+  }
+
+  // ================= CUENTAS =================
+  const CTA_BLOCKS = [
+    {k:"ingresos_op", n:"Ingresos operacionales", kind:"mov"},
+    {k:"costo_servicio", n:"Costo de prestación del servicio", kind:"mov"},
+    {k:"gasto_admon", n:"Gastos de administración", kind:"mov"},
+    {k:"gasto_fin", n:"Gastos financieros", kind:"mov"},
+    {k:"cartera", n:"Cartera (cuentas por cobrar)", kind:"bal"},
+    {k:"deuda_fin", n:"Obligaciones financieras", kind:"bal"},
+    {k:"proveedores", n:"Proveedores", kind:"bal"},
+    {k:"caja", n:"Efectivo y equivalentes", kind:"bal"},
+  ];
+  function renderCuentas(){
+    const d = DATA.detalle[year], n = nMonths(year);
+    document.getElementById("ctaTitle").textContent = "Análisis por cuenta contable · " + year;
+    const host = document.getElementById("ctaAccounts");
+    host.innerHTML = CTA_BLOCKS.map(bl=>{
+      const blk = d[bl.k]; if (!blk) return "";
+      const isBal = bl.kind==="bal";
+      const rows = blk.top.map(a=>({...a}));
+      const totArr = blk.total;
+      const totVal = isBal ? totArr[Math.min(li(year), totArr.length-1)] : sumTo(totArr,n);
+      const rowHtml = a=>{
+        const v = isBal ? a.vals[Math.min(li(year), a.vals.length-1)] : sumTo(a.vals,n);
+        const share = totVal? v/totVal : 0;
+        return `<tr><td class="name">${a.nombre}<div class="muted num" style="font-size:10.5px">${a.codigo}</div></td>
+          <td class="val">${fmtM(v)}</td>
+          <td class="val muted">${fmtPct(share,1)}</td>
+          <td>${isBal? sparkSvg(a.vals.slice(0,n)) : miniBars(a.vals.slice(0,n))}</td></tr>`;
+      };
+      let otrasRow = "";
+      if (blk.otras_count>0){
+        const v = isBal ? blk.otras[Math.min(li(year), blk.otras.length-1)] : sumTo(blk.otras,n);
+        otrasRow = `<tr><td class="name muted">Otras ${blk.otras_count} cuentas</td><td class="val muted">${fmtM(v)}</td><td class="val muted">${totVal?fmtPct(v/totVal,1):"—"}</td><td>${isBal?sparkSvg(blk.otras.slice(0,n)):miniBars(blk.otras.slice(0,n))}</td></tr>`;
+      }
+      return `<details class="acct-card"${bl.k==="ingresos_op"?" open":""}>
+        <summary><span><span class="chev">▶</span> ${bl.n}</span><span class="meta">${fmtM(totVal)}${isBal?" · saldo "+MESES[li(year)]:" · acum."}</span></summary>
+        <div class="body"><div class="table-scroll"><table class="data-table">
+          <thead><tr><th class="name-col">Cuenta</th><th>${isBal?"Saldo":"Acumulado"}</th><th>%</th><th>${isBal?"Saldo mensual":"Movimiento mensual"}</th></tr></thead>
+          <tbody>${rows.map(rowHtml).join("")}${otrasRow}
+          <tr class="total-row"><td class="name">Total ${bl.n.toLowerCase()}</td><td class="val strong">${fmtM(totVal)}</td><td class="val">100%</td><td></td></tr>
+          </tbody></table></div></div>
+      </details>`;
+    }).join("");
+  }
+
+  // ================= BALANCE =================
+  function renderBalance(){
+    const b = DATA.bsheet_serie[year], r = DATA.ratios[year], n = nMonths(year);
+    const idx = li(year);
+    const conf = b.confiable;
+    document.getElementById("balTitle").textContent = "Balance y estructura financiera · " + year;
+    document.getElementById("balNote").innerHTML = conf
+      ? `Saldos a ${MESES[idx]} ${year}. Descuadre contable ${fmtPct(b.descuadre,1)}.`
+      : `⚠ Balance en consolidación para ${year} (descuadre ${fmtPct(b.descuadre,0)}): faltan saldos de apertura de activos fijos previos a 2020. Úselo como referencia direccional; el estado de resultados no se ve afectado.`;
+    const at = b.activo_total[idx], pt = b.pasivo_total[idx], pat = b.patrimonio[idx];
+    const ac = b.activo_corriente[idx], anc = b.activo_no_corriente[idx];
+    const pc = b.pasivo_corriente[idx], pnc = b.pasivo_no_corriente[idx];
+    const line = (n2,v,tot,strong)=>`<tr class="${strong?'total-row':''}"><td class="name" style="${strong?'font-weight:700':''}">${n2}</td><td class="val ${strong?'strong':''}">${fmtM(v)}</td><td class="val muted">${tot?fmtPct(v/tot,0):""}</td></tr>`;
+    document.getElementById("balBody").innerHTML = `
+      <div class="grid-2">
+        <div class="card">
+          <h3>Estructura del balance</h3>
+          <div class="table-scroll"><table class="data-table">
+            <thead><tr><th class="name-col">Rubro</th><th>Saldo</th><th>% activo</th></tr></thead><tbody>
+            ${line("Activo corriente", ac, at)}
+            ${line("Activo no corriente", anc, at)}
+            ${line("Total activo", at, at, 1)}
+            ${line("Pasivo corriente", pc, at)}
+            ${line("Pasivo no corriente", pnc, at)}
+            ${line("Total pasivo", pt, at, 1)}
+            ${line("Patrimonio (activo − pasivo)", pat, at, 1)}
+            </tbody></table></div>
+          <div class="legend"><span><i style="background:var(--blue)"></i>Endeudamiento ${fmtPct(r.endeudamiento,0)}</span><span><i style="background:var(--aqua)"></i>Razón corriente ${fmtX(r.razon_corriente)}</span></div>
+        </div>
+        <div class="card">
+          <h3>Capital de trabajo mensual</h3>
+          <div class="sub">Activo corriente − pasivo corriente (millones COP)</div>
+          <div class="chart-holder"><svg id="chBalWc" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-bw"></div></div>
+        </div>
+        <div class="card">
+          <h3>Deuda financiera vs. caja</h3>
+          <div class="sub">Saldo mensual (millones COP)</div>
+          <div class="chart-holder"><svg id="chBalDebt" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-bd"></div></div>
+          <div class="legend"><span><i style="background:var(--red)"></i>Deuda financiera</span><span><i style="background:var(--blue)"></i>Caja</span></div>
+        </div>
+        <div class="card">
+          <h3>Cartera vs. proveedores</h3>
+          <div class="sub">Saldo mensual (millones COP) · ${r.dias_cartera} días cartera vs. ${r.dias_proveedor} días proveedor</div>
+          <div class="chart-holder"><svg id="chBalCxc" width="100%" viewBox="0 0 620 300" preserveAspectRatio="xMidYMid meet"></svg><div class="tooltip" id="tt-bc"></div></div>
+          <div class="legend"><span><i style="background:var(--aqua)"></i>Cartera</span><span><i style="background:var(--orange)"></i>Proveedores</span></div>
+        </div>
+      </div>`;
+    const L = MESES.slice(0,n);
+    multiLine("chBalWc","tt-bw", L, [{name:"Capital de trabajo", color:cvar('--yellow'), vals:b.capital_trabajo.slice(0,n)}],
+      {fmtAxis:v=>(v/1e6).toLocaleString("es-CO",{maximumFractionDigits:0}), fmtTip:fmtM});
+    multiLine("chBalDebt","tt-bd", L, [
+      {name:"Deuda financiera", color:cvar('--red'), vals:b.deuda_fin.slice(0,n)},
+      {name:"Caja", color:cvar('--blue'), vals:b.caja.slice(0,n)},
+    ], {fmtAxis:v=>(v/1e6).toLocaleString("es-CO",{maximumFractionDigits:0}), fmtTip:fmtM});
+    multiLine("chBalCxc","tt-bc", L, [
+      {name:"Cartera", color:cvar('--aqua'), vals:b.cartera.slice(0,n)},
+      {name:"Proveedores", color:cvar('--orange'), vals:b.proveedores.slice(0,n)},
+    ], {fmtAxis:v=>(v/1e6).toLocaleString("es-CO",{maximumFractionDigits:0}), fmtTip:fmtM});
+  }
+
+  // ================= TERCEROS =================
+  function renderTerceros(){
+    const t = DATA.terceros[year];
+    document.getElementById("tercTitle").textContent = "Concentración por tercero · " + year;
+    const block = (title, obj, color, unit) => {
+      const max = Math.max(...obj.top.map(x=>Math.abs(x.valor)), 1);
+      const top5 = obj.top.reduce((s,x)=>s+x.valor,0);
+      const conc = obj.total? top5/obj.total : 0;
+      return `<div class="card">
+        <h3>${title}</h3>
+        <div class="sub">${obj.n_total} terceros · top ${obj.top.length} = ${fmtPct(conc,0)} del total (${fmtM(obj.total)})</div>
+        <div class="barlist">${obj.top.map(x=>`
+          <div class="row">
+            <span class="lbl" title="${x.nombre}">${x.nombre}</span>
+            <span class="amt">${fmtM(x.valor)}</span>
+            <span class="track"><i style="width:${Math.max(Math.abs(x.valor)/max*100,1)}%;background:${color}"></i></span>
+          </div>`).join("")}</div>
+      </div>`;
+    };
+    document.getElementById("tercBody").innerHTML =
+      block("Clientes — facturación", t.clientes, cvar('--blue')) +
+      block("Proveedores — compras y fletes", t.proveedores, cvar('--orange')) +
+      block("Acreedores financieros — saldo", t.acreedores_fin, cvar('--red'));
+  }
+
+  // ================= PUNTO DE EQUILIBRIO =================
+  function renderPE(){
+    const p = DATA.pyg[year], n = nMonths(year), r = DATA.ratios[year];
+    const ing = sumTo(p.ingresos,n), cv = sumTo(p.costo_servicio,n);
+    const cf = sumTo(p.gasto_admon,n)+sumTo(p.gasto_ventas,n)+sumTo(p.gasto_fin,n)+sumTo(p.dep,n)+sumTo(p.otros_egresos,n);
+    const mcPct = ing? (ing-cv)/ing : 0;
+    const peAnual = mcPct? cf/mcPct : 0;
+    const factor = 12/n;
+    const peAnualizado = peAnual*factor;
+    const peMensual = peAnualizado/12;
+    const ingAnualizado = ing*factor;
+    const cobertura = peAnualizado? ingAnualizado/peAnualizado : 0;
+    document.getElementById("peTitle").textContent = "Punto de equilibrio · " + year + (n<12? " (anualizado)":"");
+    const cvW = Math.max(Math.min((1-mcPct)*100,100),0);
+    document.getElementById("peBody").innerHTML = `
+      <div class="pe-grid">
+        <div class="pe-stat"><div class="l">Margen de contribución</div><div class="v">${fmtPct(mcPct)}</div></div>
+        <div class="pe-stat"><div class="l">Costo fijo ${n<12?"(anualizado)":""}</div><div class="v">${fmtM(cf*factor)}</div></div>
+        <div class="pe-stat hl"><div class="l">Punto de equilibrio anual</div><div class="v">${fmtM(peAnualizado)}</div></div>
+        <div class="pe-stat"><div class="l">Equivale a ventas / mes</div><div class="v">${fmtM(peMensual)}</div></div>
+      </div>
+      <div class="pe-bar">
+        <div style="width:${cvW}%;background:var(--red)">Costo variable ${fmtPct(1-mcPct,0)}</div>
+        <div style="width:${100-cvW}%;background:var(--aqua)">Contribución ${fmtPct(mcPct,0)}</div>
+      </div>
+      <div class="pe-caption"><span>Ingresos ${n<12?"anualizados":""} ${fmtM(ingAnualizado)}</span><span>Cobertura del PE: ${fmtX(cobertura)}</span></div>
+      <div class="callout ${cobertura>=1?'':'bad'}">${cobertura>=1
+        ? `Los ingresos ${n<12?"anualizados ":""}cubren el punto de equilibrio ${fmtX(cobertura)}. Hay margen de ${fmtM(ingAnualizado-peAnualizado)} sobre el mínimo requerido.`
+        : `Los ingresos ${n<12?"anualizados ":""}están por debajo del punto de equilibrio: faltan ${fmtM(peAnualizado-ingAnualizado)} de venta anual para no generar pérdida operativa ampliada.`}
+      </div>`;
+  }
+
+  // ================= SCORECARD =================
+  function renderScorecard(){
+    const rows = [
+      {c:"Resultados (millones COP)"},
+      {n:"Ingresos operacionales", f:y=>fmtM(DATA.ratios[y].ingresos)},
+      {n:"Utilidad bruta", f:y=>fmtM(DATA.ratios[y].util_bruta)},
+      {n:"EBITDA", f:y=>fmtM(DATA.ratios[y].ebitda)},
+      {n:"Utilidad neta", f:y=>fmtM(DATA.ratios[y].util_neta)},
+      {c:"Rentabilidad"},
+      {n:"Margen bruto", f:y=>fmtPct(DATA.ratios[y].margen_bruto)},
+      {n:"Margen operacional", f:y=>fmtPct(DATA.ratios[y].margen_op)},
+      {n:"Margen EBITDA", f:y=>fmtPct(DATA.ratios[y].margen_ebitda)},
+      {n:"Margen neto", f:y=>fmtPct(DATA.ratios[y].margen_neto)},
+      {n:"ROE (anualizado)", f:y=>fmtPct(DATA.ratios[y].roe), est:1},
+      {n:"ROA (anualizado)", f:y=>fmtPct(DATA.ratios[y].roa), est:1},
+      {c:"Liquidez y capital de trabajo"},
+      {n:"Razón corriente", f:y=>fmtX(DATA.ratios[y].razon_corriente), est:1},
+      {n:"Capital de trabajo", f:y=>fmtM(DATA.ratios[y].capital_trabajo), est:1},
+      {n:"Días de cartera", f:y=>DATA.ratios[y].dias_cartera+" d", est:1},
+      {n:"Días de proveedor", f:y=>DATA.ratios[y].dias_proveedor+" d", est:1},
+      {c:"Endeudamiento"},
+      {n:"Deuda financiera", f:y=>fmtM(DATA.ratios[y].deuda_fin), est:1},
+      {n:"Deuda financiera neta", f:y=>fmtM(DATA.ratios[y].deuda_neta), est:1},
+      {n:"Deuda neta / EBITDA", f:y=>fmtX(DATA.ratios[y].deuda_ebitda), est:1},
+      {n:"Endeudamiento total", f:y=>fmtPct(DATA.ratios[y].endeudamiento), est:1},
+      {n:"Cobertura de intereses", f:y=>fmtX(DATA.ratios[y].cobertura_int)},
+      {n:"Carga financiera / ingresos", f:y=>fmtPct(DATA.ratios[y].carga_financiera)},
+    ];
+    let h = `<thead><tr><th class="name-col">Indicador</th>${YEARS.map(y=>{
+      const est = !DATA.ratios[y].balance_confiable;
+      return `<th>${y}${est?" ~":""}${y===year?" ◄":""}</th>`;
+    }).join("")}</tr></thead><tbody>`;
+    rows.forEach(r=>{
+      if (r.c){ h += `<tr class="cat-row"><td colspan="${YEARS.length+1}">${r.c}</td></tr>`; return; }
+      h += `<tr><td class="name">${r.n}</td>${YEARS.map(y=>{
+        const est = r.est && !DATA.ratios[y].balance_confiable;
+        return `<td class="val ${y===year?'strong':''} ${est?'muted':''}">${r.f(y)}${est?" ~":""}</td>`;
+      }).join("")}</tr>`;
+    });
+    document.getElementById("scoreTable").innerHTML = h + "</tbody>";
+  }
+
+  // ================= RENDER ALL =================
+  function render(){
+    renderResumen();
+    renderTendencia();
+    renderWaterfall();
+    renderPygTable();
+    renderMensual();
+    renderCuentas();
+    renderBalance();
+    renderTerceros();
+    renderPE();
+    renderScorecard();
+  }
+  setYear(year);
+  window.addEventListener("resize", ()=>{ /* svg viewBoxes are responsive; re-render tooltips-free */ });
+})();
+</script>
