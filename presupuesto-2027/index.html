@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Presupuesto Sotracar 2027</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout: same system as "Sotracar · Dirección Financiera" — topbar, KPI rows, cards, dense tables; one decision panel per section. */
+  :root{
+    color-scheme: light;
+    --page:#eef1f6; --surface:#ffffff; --surface-2:#f5f7fa;
+    --ink:#151a23; --ink-2:#4d5568; --muted:#868da0;
+    --border:rgba(21,26,35,0.10); --border-strong:rgba(21,26,35,0.18);
+    --blue:#2a78d6; --orange:#eb6834; --aqua:#1baf7a; --yellow:#eda100; --red:#e34948; --violet:#4a3aa7; --slate:#7a8296;
+    --good:#0ca30c; --warning:#c98500; --critical:#d03b3b;
+    --shadow: 0 1px 2px rgba(21,26,35,0.04), 0 8px 24px -12px rgba(21,26,35,0.18);
+    --f-display:"Libre Franklin", system-ui, sans-serif;
+    --f-body:"IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    --f-mono:"IBM Plex Mono", ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --page:#0c0e13; --surface:#161a22; --surface-2:#1d222c;
+      --ink:#f2f4f8; --ink-2:#c1c7d6; --muted:#8991a5;
+      --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.16);
+      --blue:#3987e5; --orange:#e0692f; --aqua:#22b184; --yellow:#e0b23c; --red:#e66767; --violet:#9085e9; --slate:#9aa1b4;
+      --good:#3fbf5f; --warning:#e0b23c; --critical:#e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0c0e13; --surface:#161a22; --surface-2:#1d222c;
+    --ink:#f2f4f8; --ink-2:#c1c7d6; --muted:#8991a5;
+    --border:rgba(255,255,255,0.09); --border-strong:rgba(255,255,255,0.16);
+    --blue:#3987e5; --orange:#e0692f; --aqua:#22b184; --yellow:#e0b23c; --red:#e66767; --violet:#9085e9; --slate:#9aa1b4;
+    --good:#3fbf5f; --warning:#e0b23c; --critical:#e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--page); color:var(--ink); font-family:var(--f-body); -webkit-font-smoothing:antialiased; font-size:14px;}
+  .num{font-family:var(--f-mono); font-variant-numeric:tabular-nums;}
+  h1,h2,h3,h4{font-family:var(--f-display); text-wrap:balance; margin:0;}
+  a{color:var(--blue);}
+  .wrap{max-width:1280px; margin:0 auto; padding-block:26px 72px; padding-inline:22px;}
+  @media (max-width:520px){ .wrap{padding-inline:16px;} }
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; padding-bottom:18px; margin-bottom:20px; border-bottom:1px solid var(--border);}
+  .brand{display:flex; align-items:center; gap:12px; min-width:0;}
+  .brand-mark{width:42px; height:42px; border-radius:10px; flex:none; background:linear-gradient(155deg, var(--blue), var(--violet)); display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--f-display); font-weight:800; font-size:15px;}
+  .brand h1{font-size:21px; font-weight:800; letter-spacing:-0.01em;}
+  .brand p{margin:2px 0 0; font-size:12.5px; color:var(--muted);}
+  .badges{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .badge{font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:100px; border:1px solid var(--border-strong); color:var(--ink-2); white-space:nowrap;}
+  .badge.real{background:color-mix(in srgb, var(--aqua) 16%, transparent); border-color:color-mix(in srgb, var(--aqua) 45%, transparent); color:var(--ink);}
+  .badge.proj{background:color-mix(in srgb, var(--violet) 14%, transparent); border-color:color-mix(in srgb, var(--violet) 40%, transparent); color:var(--ink);}
+
+  nav.toc{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:26px;}
+  nav.toc a{font-size:12px; font-weight:600; color:var(--ink-2); text-decoration:none; padding:6px 11px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border);}
+  nav.toc a:hover,nav.toc a:focus-visible{color:var(--ink); border-color:var(--border-strong); outline:none;}
+
+  section{margin-bottom:44px; scroll-margin-top:16px;}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .section-head h2{font-size:14px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-2);}
+  .section-head .note{font-size:12.5px; color:var(--muted); max-width:640px; text-align:right;}
+  @media (max-width:700px){ .section-head .note{text-align:left;} }
+
+  .brief{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:20px 22px; display:grid; grid-template-columns:minmax(0,0.8fr) minmax(0,1.2fr); gap:26px; align-items:center;}
+  @media (max-width:900px){ .brief{grid-template-columns:minmax(0,1fr);} }
+  .brief h3{font-size:24px; font-weight:800; letter-spacing:-0.01em; line-height:1.25;}
+  .brief .lede{color:var(--ink-2); font-size:14px; line-height:1.6; margin:10px 0 0; max-width:62ch;}
+  .msgs{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .msgs li{display:grid; grid-template-columns:10px minmax(0,1fr); gap:10px; font-size:13.5px; line-height:1.5; color:var(--ink);}
+  .msgs li i{width:10px; height:10px; border-radius:3px; margin-top:5px;}
+  .msgs li b{font-weight:600;}
+
+  .kpi-grid{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px;}
+  .kpi-grid.six{grid-template-columns:repeat(6, minmax(0,1fr));}
+  @media (max-width:1100px){ .kpi-grid.six{grid-template-columns:repeat(3,minmax(0,1fr));} }
+  @media (max-width:980px){ .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  @media (max-width:520px){ .kpi-grid,.kpi-grid.six{grid-template-columns:minmax(0,1fr);} }
+  .kpi{background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:15px 16px 14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:7px; min-width:0;}
+  .kpi-label{font-size:11.5px; color:var(--muted); font-weight:600; letter-spacing:.03em; text-transform:uppercase;}
+  .kpi-value{font-size:22px; font-weight:600; letter-spacing:-0.01em;}
+  .kpi-sub{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2); flex-wrap:wrap; line-height:1.4;}
+  .pill{display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:600; padding:2px 7px; border-radius:100px; white-space:nowrap;}
+  .pill.good{color:var(--good); background:color-mix(in srgb, var(--good) 15%, transparent);}
+  .pill.warn{color:var(--warning); background:color-mix(in srgb, var(--warning) 18%, transparent);}
+  .pill.bad{color:var(--critical); background:color-mix(in srgb, var(--critical) 15%, transparent);}
+  .pill.flat{color:var(--muted); background:color-mix(in srgb, var(--muted) 16%, transparent);}
+
+  .grid-2{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px;}
+  .grid-32{display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:14px;}
+  @media (max-width:940px){ .grid-2,.grid-32{grid-template-columns:minmax(0,1fr);} }
+  .stack{display:flex; flex-direction:column; gap:14px;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:17px 19px 15px; box-shadow:var(--shadow); min-width:0;}
+  .card h3{font-size:14px; font-weight:700;}
+  .card > h3{margin-bottom:10px;}
+  .card .sub{font-size:12px; color:var(--muted); margin-top:-7px; margin-bottom:8px; line-height:1.45;}
+  .card p.read{font-size:13px; line-height:1.55; color:var(--ink-2); margin:10px 0 0;}
+  .legend{display:flex; gap:14px; margin-top:8px; flex-wrap:wrap;}
+  .legend span{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-2);}
+  .legend i{width:10px; height:10px; border-radius:2px; display:inline-block; flex:none;}
+  .legend i.dash{height:0; border-top:2px dashed var(--ink-2); border-radius:0; width:14px;}
+  svg{display:block; width:100%; height:auto; overflow:visible;}
+  svg text{font-family:var(--f-mono);}
+  .axis-label{fill:var(--muted); font-size:10px;}
+  .val-label{fill:var(--ink-2); font-size:10px;}
+  .gridline{stroke:var(--border); stroke-width:1;}
+  .baseline{stroke:var(--border-strong); stroke-width:1;}
+  .chart-holder{position:relative;}
+  .tooltip{position:absolute; pointer-events:none; opacity:0; transition:opacity .12s ease; background:var(--ink); color:var(--page); font-size:11.5px; font-family:var(--f-mono); padding:6px 9px; border-radius:7px; white-space:nowrap; transform:translate(-50%,-118%); z-index:5; box-shadow:0 6px 16px rgba(0,0,0,.25);}
+
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  .data-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .data-table th{text-align:right; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:600; padding:7px 9px; border-bottom:1px solid var(--border-strong); white-space:nowrap; vertical-align:bottom;}
+  .data-table th.name-col{text-align:left; min-width:190px;}
+  .data-table td{padding:7px 9px; border-bottom:1px solid var(--border); vertical-align:middle;}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table td.name{color:var(--ink); font-weight:500;}
+  .data-table td.name small{display:block; color:var(--muted); font-weight:400; font-size:11px; margin-top:1px;}
+  .data-table td.val{font-family:var(--f-mono); font-variant-numeric:tabular-nums; text-align:right; font-weight:500; white-space:nowrap;}
+  .data-table tr.total-row td{font-weight:700; border-top:1px solid var(--border-strong);}
+  .data-table tr.sub-row td.name{padding-left:22px; color:var(--ink-2); font-weight:400;}
+  .data-table tr.cat-row td{padding-top:14px; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:700; border-bottom:none;}
+  .data-table tr.hl td{background:color-mix(in srgb, var(--blue) 7%, transparent);}
+  .data-table td.muted{color:var(--muted);}
+  .data-table th.proj, .data-table td.proj{background:color-mix(in srgb, var(--violet) 6%, transparent);}
+  .delta-pos{color:var(--good);} .delta-neg{color:var(--critical);}
+  .dot{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:7px; vertical-align:middle;}
+  .meter{position:relative; height:8px; background:var(--surface-2); border-radius:4px; min-width:90px; border:1px solid var(--border);}
+  .meter b{position:absolute; left:0; top:0; bottom:0; border-radius:4px;}
+  .meter s{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--ink-2);}
+
+  /* Scenario panel */
+  .panel{background:var(--surface); border:1px solid var(--border-strong); border-radius:14px; box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px;}
+  .panel-top{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .seg{display:inline-flex; gap:3px; background:var(--surface-2); padding:4px; border-radius:11px; border:1px solid var(--border); flex-wrap:wrap;}
+  .seg button{border:none; background:transparent; padding:8px 15px; border-radius:8px; font-family:var(--f-body); font-weight:600; font-size:13px; color:var(--ink-2); cursor:pointer;}
+  .seg button:hover{color:var(--ink);}
+  .seg button:focus-visible{outline:2px solid var(--blue); outline-offset:1px;}
+  .seg button.active{background:var(--surface); color:var(--ink); box-shadow:var(--shadow);}
+  .scn-desc{font-size:12.5px; color:var(--muted); max-width:560px; line-height:1.45;}
+  .drivers{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px 20px;}
+  @media (max-width:1000px){ .drivers{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  @media (max-width:520px){ .drivers{grid-template-columns:minmax(0,1fr);} }
+  .drv{display:flex; flex-direction:column; gap:4px; min-width:0;}
+  .drv label{display:flex; justify-content:space-between; gap:8px; font-size:12px; color:var(--ink-2); font-weight:500;}
+  .drv label output{font-family:var(--f-mono); color:var(--ink); font-weight:600;}
+  .drv input[type=range]{width:100%; accent-color:var(--violet);}
+  .drv small{font-size:11px; color:var(--muted);}
+  .chk{display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--ink-2); padding-top:4px;}
+  .chk input{accent-color:var(--violet); margin-top:2px;}
+
+  .decisions{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px;}
+  @media (max-width:900px){ .decisions{grid-template-columns:minmax(0,1fr);} }
+  .dec{background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:15px 17px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:7px; min-width:0;}
+  .dec-head{display:flex; justify-content:space-between; gap:10px; align-items:baseline; flex-wrap:wrap;}
+  .dec h4{font-size:14px; font-weight:700;}
+  .dec p{margin:0; font-size:13px; color:var(--ink-2); line-height:1.5;}
+  .dec .impact{font-family:var(--f-mono); font-size:12px; color:var(--ink);}
+  .tag{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:3px 8px; border-radius:100px;}
+  .tag.urg{color:var(--critical); background:color-mix(in srgb, var(--critical) 13%, transparent);}
+  .tag.alta{color:var(--warning); background:color-mix(in srgb, var(--warning) 16%, transparent);}
+  .tag.med{color:var(--blue); background:color-mix(in srgb, var(--blue) 13%, transparent);}
+
+  .eyebrow{font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+  .chips{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;}
+  @media (max-width:520px){ .chips{grid-template-columns:minmax(0,1fr);} }
+  .chip{border-radius:11px; padding:12px 14px; background:var(--surface-2); border:1px solid var(--border); display:flex; flex-direction:column; gap:4px; min-width:0; border-left:4px solid var(--c,var(--muted));}
+  .chip span{font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  .chip b{font-family:var(--f-mono); font-size:19px; font-weight:600; color:var(--ink);}
+  .chip em{font-style:normal; font-size:12px; color:var(--ink-2);}
+  details.fold{background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);}
+  details.fold summary{cursor:pointer; list-style:none; padding:14px 18px; font-family:var(--f-display); font-weight:700; font-size:13.5px; display:flex; justify-content:space-between;}
+  details.fold summary::-webkit-details-marker{display:none;}
+  details.fold summary::after{content:'+'; color:var(--muted); font-family:var(--f-mono);}
+  details.fold[open] summary::after{content:'−';}
+  details.fold .grid-2{padding:0 18px 16px;}
+  details.fold .card{box-shadow:none; background:var(--surface-2);}
+  .notes{font-size:12.5px; color:var(--ink-2); line-height:1.6;}
+  .notes h4{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:14px 0 6px;}
+  .notes ul{margin:0; padding-left:18px;}
+  .notes li{margin-bottom:4px;}
+  footer{font-size:12px; color:var(--muted); border-top:1px solid var(--border); padding-top:16px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important;} }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">S</div>
+      <div>
+        <h1>Sotracar · Presupuesto 2027</h1>
+        <p>Informe para Junta Directiva · Corte contable 31-oct-2026 · Cifras en millones de COP</p>
+      </div>
+    </div>
+    <div class="badges">
+      <span class="badge real">Real ene–oct 2026</span>
+      <span class="badge">Cierre estimado 2026</span>
+      <span class="badge proj">Proyección 2027</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Secciones">
+    <a href="#resumen">Resumen</a>
+    <a href="#ejecucion">Ejecución 2026</a>
+    <a href="#lineas">Rentabilidad por línea</a>
+    <a href="#aterrizaje">Cierre 2026</a>
+    <a href="#p2027">Presupuesto 2027</a>
+    <a href="#caja">Caja 2027</a>
+    <a href="#deuda">Deuda</a>
+    <a href="#equilibrio">Equilibrio y sensibilidad</a>
+    <a href="#decisiones">Decisiones</a>
+    <a href="#notas">Supuestos y fuentes</a>
+  </nav>
+
+  <!-- ============ RESUMEN ============ -->
+  <section id="resumen">
+    <div class="brief">
+      <div>
+        <div class="eyebrow">Mensaje para la Junta</div>
+        <h3>Factura el <span id="b-cump">94%</span> del presupuesto, pero gana el <span id="b-uai">34%</span>.</h3>
+      </div>
+      <div class="chips" id="msgs"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="kpi-grid" id="kpi2026"></div>
+  </section>
+
+  <!-- ============ EJECUCIÓN ============ -->
+  <section id="ejecucion">
+    <div class="section-head"><h2>Ejecución 2026 · presupuesto vs. real</h2><span class="note">Ene–oct 2026</span></div>
+    <div class="grid-32">
+      <div class="card">
+        <h3>Ingresos operacionales por mes</h3>
+        <div class="sub">Presupuesto: 857,8 al mes</div>
+        <div class="chart-holder" id="ch-ing"></div>
+        <div class="legend"><span><i style="background:var(--blue)"></i>Real 2026</span><span><i class="dash"></i>Presupuesto 2026</span></div>
+      </div>
+      <div class="card">
+        <h3>Utilidad antes de impuestos por mes</h3>
+        <div class="sub">Presupuesto: 76,8 al mes</div>
+        <div class="chart-holder" id="ch-uai"></div>
+        <div class="legend"><span><i style="background:var(--aqua)"></i>Real 2026</span><span><i class="dash"></i>Presupuesto 2026</span></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Cumplimiento por línea de negocio</h3>
+      <div class="sub">Barra: ejecutado · marca: presupuesto a octubre</div>
+      <div class="table-scroll"><table class="data-table" id="t-exec"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ LÍNEAS ============ -->
+  <section id="lineas">
+    <div class="section-head"><h2>Rentabilidad por línea</h2><span class="note">Ingreso menos costo directo</span></div>
+    <div class="grid-32">
+      <div class="card">
+        <h3>Margen directo ene–oct 2026</h3>
+        
+        <div class="table-scroll"><table class="data-table" id="t-margin"></table></div>
+        <p class="read" id="read-mix"></p>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <h3>Mezcla de ingresos y margen</h3>
+          <div class="sub">Peso en el ingreso · margen directo</div>
+          <div id="ch-mix"></div>
+        </div>
+        <div class="card">
+          <h3>Concentración de clientes</h3>
+          <div class="sub">Líneas con detalle por cliente · ene–oct</div>
+          <div class="table-scroll"><table class="data-table" id="t-cli"></table></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Nacional con vehículos propios · uso de la flota</h3>
+      <div class="sub">5 tractocamiones · capacidad 25 viajes al mes</div>
+      <div class="grid-2">
+        <div id="ch-np"></div>
+        <div class="table-scroll"><table class="data-table" id="t-np"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ATERRIZAJE ============ -->
+  <section id="aterrizaje">
+    <div class="section-head"><h2>Cierre estimado 2026 vs. lo presentado a la Junta</h2><span class="note">Oct–dic con el promedio mensual</span></div>
+    <div class="kpi-grid" id="kpi-land"></div>
+  </section>
+
+  <!-- ============ PRESUPUESTO 2027 ============ -->
+  <section id="p2027">
+    <div class="section-head"><h2>Presupuesto 2027</h2><span class="note">Mueva los supuestos: todo se recalcula</span></div>
+    <div class="panel">
+      <div class="panel-top">
+        <div class="seg" role="group" aria-label="Escenario" id="seg">
+          <button type="button" data-s="conservador">Conservador</button>
+          <button type="button" data-s="base" class="active">Base</button>
+          <button type="button" data-s="meta">Meta con plan de acción</button>
+        </div>
+        <div class="scn-desc" id="scn-desc"></div>
+      </div>
+      <div class="drivers" id="drivers"></div>
+    </div>
+    <div class="kpi-grid six" id="kpi27"></div>
+
+    <div class="card" style="margin-top:14px">
+        <h3>Estado de resultados</h3>
+        
+        <div class="table-scroll"><table class="data-table" id="t-pyg"></table></div>
+    </div>
+    <div class="grid-2" style="margin-top:14px">
+        <div class="card">
+          <h3>De la utilidad 2026 a la utilidad 2027</h3>
+          <div class="sub">Utilidad antes de impuestos</div>
+          <div id="ch-wf"></div>
+        </div>
+        <div class="card">
+          <h3>Ingresos por línea</h3>
+          
+          <div class="table-scroll"><table class="data-table" id="t-rev"></table></div>
+        </div>
+    </div>
+  </section>
+
+  <!-- ============ CAJA ============ -->
+  <section id="caja">
+    <div class="section-head"><h2>Flujo de caja 2027</h2><span class="note">Piso de caja: 100</span></div>
+    <div class="grid-32">
+      <div class="card">
+        <h3>Caja al cierre de cada mes y fondeo requerido</h3>
+        
+        <div class="chart-holder" id="ch-cash"></div>
+        <div class="legend"><span><i style="background:var(--aqua)"></i>Flujo operativo después de impuestos</span><span><i style="background:var(--orange)"></i>Servicio de la deuda (capital + intereses)</span><span><i style="background:var(--critical)"></i>Fondeo requerido</span></div>
+      </div>
+      <div class="card">
+        <h3>Usos y fuentes de caja 2027</h3>
+        
+        <div class="table-scroll"><table class="data-table" id="t-uses"></table></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Presupuesto mensual 2027</h3>
+      
+      <div class="table-scroll"><table class="data-table" id="t-month"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ DEUDA ============ -->
+  <section id="deuda">
+    <div class="section-head"><h2>Deuda financiera y servicio 2027</h2><span class="note">Informe de crédito de noviembre 2026 · incluye periodos de gracia a capital</span></div>
+    <div class="kpi-grid" id="kpi-debt"></div>
+    <div class="card" style="margin-top:14px">
+      <h3>Créditos uno por uno</h3>
+      
+      <div class="table-scroll"><table class="data-table" id="t-debt"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ EQUILIBRIO ============ -->
+  <section id="equilibrio">
+    <div class="section-head"><h2>Punto de equilibrio y sensibilidad</h2><span class="note"></span></div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>¿Cuánto hay que facturar para no perder?</h3>
+        
+        <div id="ch-be"></div>
+        <p class="read" id="read-be"></p>
+      </div>
+      <div class="card">
+        <h3>Qué mueve la utilidad 2027</h3>
+        
+        <div class="table-scroll"><table class="data-table" id="t-sens"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DECISIONES ============ -->
+  <section id="decisiones">
+    <div class="section-head"><h2>Decisiones que se piden a la Junta</h2><span class="note"></span></div>
+    <div class="decisions" id="decs"></div>
+  </section>
+
+  <!-- ============ NOTAS ============ -->
+  <section id="notas">
+    <details class="fold"><summary>Supuestos, fuentes y calidad de datos</summary>
+    <div class="grid-2">
+      <div class="card notes">
+        <h4>Fuentes</h4>
+        <ul>
+          <li>Informe de ejecución presupuestal ene–oct 2026 (archivo PRESUPUESTO 2026 SOTRACAR, recibido 17-nov-2026). Corrige septiembre: carga local −10,6.</li>
+          <li>Balance de prueba 2025 (8-BceDePba 2025) e informes de línea ene–sep y octubre 2026.</li>
+          <li>Libro auxiliar de octubre 2026 (caja, préstamo particular, intereses).</li>
+          <li>Presupuesto 2026 y ejecución mensual por línea (Presupuesto Ejecución x Líneas).</li>
+          <li>Flujo presentado a la Junta (2025–2030) y flujo ejecutado a septiembre.</li>
+          <li>Informe de créditos de noviembre 2026 y planes de pago de leasing Bancolombia.</li>
+          <li>Informes de línea: Nacional terceros, Buenaventura, Nacional propios y Locales terceros CTG–BQ.</li>
+        </ul>
+        <h4>Supuestos macro 2027</h4>
+        <ul>
+          <li>IPC: 6,24% anual a agosto 2026; se espera un cierre 2026 cercano a 6,9% y alrededor de 5,1% en 2027. Las tarifas se ajustan con el IPC de cierre 2026.</li>
+          <li>Salario mínimo 2027: el mercado espera entre +8,5% y +10% (en 2026 subió 23%). Se aplica a toda la nómina, operativa y administrativa.</li>
+          <li>Impuesto de renta: 35% sobre la utilidad antes de impuestos. Las retenciones que practican los clientes (1,1% del ingreso) salen de caja durante el año.</li>
+        </ul>
+      </div>
+      <div class="card notes">
+        <h4>Cómo se construyó la proyección</h4>
+        <ul>
+          <li>Base 2026 = ene–oct × 12/10 por línea y por rubro de costo. Viajes y clientes: informes de línea ene–oct.</li>
+          <li>Octubre: préstamo de un particular por 80 (S. J. Castilla, 23-oct, 3 meses, 1,5% mensual) y cancelación del leasing KOL423. Saldos de créditos según el informe de noviembre.</li>
+          <li>Periodos de gracia a capital (informe de noviembre): leasing Bancolombia en enero 2027; Banco de Bogotá 190 y 604 seis meses; BBVA cuatro meses. Se supone que el plazo se corre los mismos meses: falta la nueva tabla de amortización.</li>
+          <li>EQY310 y EQY315 figuran como propios en libros, pero el registro de impuestos vehiculares 2026 los muestra a nombre de Leasing Banco de Occidente y Leasing Davivienda.</li>
+          <li>Líneas con terceros: el costo se mueve con el ingreso y se conserva el margen 2026, salvo que se cambie el supuesto.</li>
+          <li>Flota propia: combustible y peajes crecen con viajes y precio; nómina con el salario mínimo; seguros, mantenimiento e indirectos con el IPC.</li>
+          <li>Intereses del leasing: plan de pagos × 1,4. La contabilidad de 2026 causa cerca de 1,4 veces lo que muestra el plan de marzo (mora y cambios en la IBR).</li>
+          <li>Obligaciones con particulares del grupo (3.200,7): sin abonos a capital en 2027 y con 27,4 de intereses, igual que en el flujo presentado.</li>
+        </ul>
+        <h4>Inconsistencias en los archivos fuente</h4>
+        <ul>
+          <li>Nacional propios, hoja Resumen: la rentabilidad realizada dice 2,8, pero el detalle suma 561,4 de margen por viaje. La celda apunta a una sola fila de la tabla dinámica.</li>
+          <li>Buenaventura, hoja Resumen: lo que se rotula como "presupuestado" (662,4) es el ingreso ejecutado, y lo que se rotula como "ejecutado" (537,5) es el costo. El presupuesto real de la línea es 1.128.</li>
+          <li>Presupuesto x Líneas: las columnas de viajes están corridas una fila respecto a los nombres de línea, y la columna M tiene errores #REF!.</li>
+          <li>2025 ajustado: se descuentan 150 facturados a Asercol en diciembre de 2025 en carga local (41450501). No fue un servicio operativo. Ingresos 2025 pasan de 9.021,8 a 8.871,8 y la UAI de 519,2 a 369,2; el impuesto se deja como se pagó (103,6).</li>
+          <li>La utilidad acumulada del informe de ejecución (254,0) difiere en 8,9 de la del balance de prueba (245,1). Aquí se usa la del balance.</li>
+        </ul>
+      </div>
+    </div>
+  </details>
+  </section>
+
+  <footer>
+    <span>Sotracar · Dirección Financiera · Presupuesto 2027 para Junta Directiva</span>
+    <span>Fuente: libros contables y reportes de ejecución Sotracar, corte 31-oct-2026</span>
+  </footer>
+</div>
+
+<script>
+(function(){
+// ===================== DATA (millones COP) =====================
+const LINES=[
+ {k:'local',  n:'Carga local · vehículos propios', s:'Cartagena distrito', c:'var(--blue)',   own:true},
+ {k:'nacter', n:'Nacional · vehículos de terceros', s:'Subcontratado',     c:'var(--orange)', own:false},
+ {k:'nacprop',n:'Nacional · vehículos propios',     s:'5 tractocamiones',  c:'var(--violet)', own:true},
+ {k:'bun',    n:'Agencia Buenaventura',             s:'Terceros',          c:'var(--yellow)', own:false},
+ {k:'locter', n:'Local terceros · CTG y BQ',        s:'Subcontratado',     c:'var(--aqua)',   own:false},
+ {k:'bog',    n:'Agencia Bogotá',                   s:'Flota propia',      c:'var(--slate)',  own:true},
+];
+const MES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const D={
+  budget26:{local:2790,nacter:3643.2,nacprop:2298,locter:194.19369,bun:1128,bog:240},
+  rev9:{local:1795.96,nacter:3447.12,nacprop:1646.38,locter:273.45,bun:776.84,bog:101.54}, // ene–oct 2026, informe de ejecución presupuestal (recibido 17-nov)
+  rev9_25:{local:2263.866305,nacter:2233.959427,nacprop:1778.375407,locter:177.3178,bun:943.490717,bog:76.603}, // ene–oct 2025
+  y2025:{local:2793.481,nacter:2666.280,nacprop:2041.451,locter:184.770,bun:1089.838,bog:95.931},
+  monthsRev:[707.175972,747.841663,826.889919,752.857067,861.28762,861.722609,948.299942,791.088316,775.856566,768.270554],
+  monthsUAI:[21.97,20.98,29.12,15.03,41.42,23.57,51.21,30.82,23.63,14.50],
+  budMonthRev:857.7828,budMonthUAI:76.8264,
+  trips9:{nacprop:226},
+  npMonth:[[178.78,105.97,27],[151.93,87.17,23],[126.0,78.3,17],[176.28,102.76,24],[158.44,102.37,22],[129.55,78.58,18],[172.15,105.75,23],[164.12,110.39,24],[207.49,131.66,26],[178.59,114.81,22]],
+  cost9:{nacter:2798.36,bun:631.62,locter:195.43,varNP:1040.65,varLoc:280.42,varBog:31.53,persOp:928.26,seg:175.08,ind:175.07,mant:289.89}, // informe de ejecución; semivariables 350,15 repartidos en partes iguales
+  adm9:{pers:462.13,da:100.48,otros:308.31},
+  noop9:{ing:90.13,fin:351.31,int:312.42,div:90.63,ext:0},
+  uai9:272.25, rev9tot:8041.29, budget9tot:8577.83, budget9uai:768.2, nM:10, rev9tot25:7473.6,
+  y25:{rev:8871.8,ub:2105.3,uai:369.2,un:265.6,noop:146.7,ajuste:150}, // 2025 sin facturación a Asercol dic-25 (150)
+  pres26:{rev:10293.4,uai:977.7,caja:381.9,fondeo:1261.0},
+  pres27:{rev:11013.9,costo:7301.6,uai:1459.8,int:310.9,caja:477.9,fondeo:0},
+  cash_sep:56.3, asercol:3191.9, asercol_dec25:2261.5, fondeo9:1382.1, // 31-oct: caja; 2195 sin préstamo Castilla (80); préstamos del grupo recibidos ene–oct
+  clients:[['CRODA',1393.2],['PELEX (Películas Extruidas)',1220.3],['RICOH',621.5],['SEALED AIR',605.8],['LOGICEM',468.1],['CAFEZAM',344.9],['HAAN',164.6],['INDIMEX',153.0],['OBEN',127.8],['Otros',1038.7]],
+  ibr:9.6, levF:1.4, piso:100,
+  debt:[
+    {n:'Leasing Bancolombia KPP618-619-620',t:'Leasing',saldo:940.05,cap:39.82,spread:2.55,fin:'2028-08',mora:true, cap27:438.0,int27:74.5,capQ4:79.64,intQ4:18.5},
+    {n:'Leasing Bancolombia Sinotruk LUW711 + tráiler',t:'Leasing',saldo:265.78,cap:12.36,spread:4.58,fin:'2028-07',mora:true,cap27:135.94,int27:25.2,capQ4:24.72,intQ4:6.4},
+    {n:'Préstamo particular S. J. Castilla',t:'Particular',saldo:80.0,cap:0,spread:9.96,fin:'2027-01',mora:false},
+    {n:'Banco de Bogotá · 604',t:'Banco',saldo:360.19,cap:10.03,spread:6.2,fin:'2029-09',mora:true,gr:['2027-01','2027-06']},
+    {n:'Banco de Bogotá · 190',t:'Banco',saldo:44.07,cap:7.28,spread:6.5,fin:'2027-03',mora:false,gr:['2026-12','2027-05']},
+    {n:'Banco de Bogotá · 52',t:'Banco',saldo:5.58,cap:2.87,spread:3.7,fin:'2026-12',mora:false},
+    {n:'BBVA · 300',t:'Banco',saldo:87.5,cap:8.75,spread:4.7,fin:'2027-07',mora:true,gr:['2026-12','2027-03']},
+    {n:'Davivienda rotativo',t:'Banco',saldo:85.67,cap:3.60,spread:6.0,fin:'2028-04',mora:false},
+    {n:'Davivienda 9677',t:'Banco',saldo:16.85,cap:2.78,spread:5.4,fin:'2027-05',mora:false},
+    {n:'Bancolombia ordinario · 80',t:'Banco',saldo:22.22,cap:4.44,spread:5.0,fin:'2027-03',mora:false},
+    {n:'Occidente · 146',t:'Banco',saldo:12.48,cap:4.87,spread:5.34,fin:'2026-11',mora:false},
+    {n:'Occidente · 54',t:'Banco',saldo:6.96,cap:1.50,spread:4.86,fin:'2027-02',mora:false},
+    {n:'Tarjeta de crédito Bancolombia',t:'Banco',saldo:4.36,cap:4.36,spread:0,fin:'2026-11',mora:false},
+  ]
+};
+const SCN={
+  conservador:{tarifa:4.0,vLocal:-5,vNacter:-5,tripsNP:265,vLocter:0,vBun:-10,vBog:0,mNacter:18.0,mBun:18.1,sal:10.0,ipcC:6.0,comb:7.0,devol:false,pacheco:140,capex:30,
+    d:'Tarifas +4%, volúmenes a la baja, salarios +10%, sin devolución de renta.'},
+  base:{tarifa:6.0,vLocal:0,vNacter:3,tripsNP:285,vLocter:5,vBun:0,vBog:5,mNacter:19.1,mBun:18.1,sal:8.5,ipcC:5.5,comb:6.0,devol:true,pacheco:140,capex:30,
+    d:'Tarifas +6% (IPC), márgenes 2026, salarios +8,5%, devolución de renta en julio.'},
+  meta:{tarifa:6.5,vLocal:5,vNacter:5,tripsNP:300,vLocter:10,vBun:5,vBog:100,mNacter:20.5,mBun:19.5,sal:8.5,ipcC:5.5,comb:6.0,devol:true,pacheco:140,capex:30,
+    d:'Base + margen terceros 20,5%, flota a 300 viajes y acarreos en Bogotá.'},
+};
+const DRV=[
+  {k:'tarifa',l:'Ajuste de tarifas',min:0,max:10,step:0.5,u:'%',h:'Sobre todas las líneas'},
+  {k:'vNacter',l:'Volumen nacional terceros',min:-20,max:20,step:1,u:'%',h:'Vs. 2026 anualizado (4.137)'},
+  {k:'mNacter',l:'Margen nacional terceros',min:15,max:24,step:0.5,u:'%',h:'2026: 19,1%'},
+  {k:'tripsNP',l:'Viajes nacional propios',min:230,max:300,step:5,u:'',h:'2026: 271 · capacidad 300'},
+  {k:'vLocal',l:'Volumen carga local propia',min:-20,max:15,step:1,u:'%',h:'Cayó 21% en 2026'},
+  {k:'vBun',l:'Volumen Buenaventura',min:-30,max:20,step:1,u:'%',h:'Cayó 18% en 2026'},
+  {k:'sal',l:'Incremento salarial',min:5,max:15,step:0.5,u:'%',h:'Esperado: 8,5% a 10%'},
+  {k:'devol',l:'Pedir devolución del saldo a favor de renta (331)',type:'chk'},
+];
+
+// ===================== MODEL =====================
+function ym(s){const [y,m]=s.split('-').map(Number);return y*12+m-1;}
+function debtSchedule(){
+  const start=ym('2026-11'),N=14,cap=Array(N).fill(0),int=Array(N).fill(0),rows=[];
+  for(const d of D.debt){
+    let s=d.saldo; const g=d.gr?[ym(d.gr[0]),ym(d.gr[1])]:null; const end=ym(d.fin)+(g?g[1]-g[0]+1:0); let c27=0,i27=0,cQ4=0,iQ4=0;
+    for(let k=0;k<N;k++){
+      const t=start+k; let c=0,i=0;
+      if(d.cap27!==undefined){ if(k<2){c=d.capQ4/2;i=d.intQ4/2*D.levF;} else {c=d.cap27/12;i=d.int27/12*D.levF;} c=Math.min(c,s); }
+      else if(s>0.01){ i=s*((D.ibr+d.spread)/100)/12; c=(g&&t>=g[0]&&t<=g[1])?0:((t>=end)?s:Math.min(d.cap,s)); }
+      s-=c; cap[k]+=c; int[k]+=i; if(k<2){cQ4+=c;iQ4+=i;}else{c27+=c;i27+=i;}
+    }
+    rows.push({...d,cQ4,iQ4,c27,i27,fin27:s});
+  }
+  return {cap,int,rows};
+}
+const DS=debtSchedule();
+const sum=o=>Object.values(o).reduce((s,x)=>s+x,0);
+function run(p){
+  const a=x=>x*12/D.nM, R26={}; for(const k in D.rev9) R26[k]=a(D.rev9[k]);
+  const trips26=D.trips9.nacprop*12/10, tkt26=R26.nacprop/trips26, T=1+p.tarifa/100;
+  const R27={local:R26.local*(1+p.vLocal/100)*T,nacter:R26.nacter*(1+p.vNacter/100)*T,nacprop:p.tripsNP*tkt26*T,locter:R26.locter*(1+p.vLocter/100)*T,bun:R26.bun*(1+p.vBun/100)*T,bog:R26.bog*(1+p.vBog/100)*T};
+  const c=D.cost9, C26={}; for(const k in c) C26[k]=a(c[k]);
+  const mLocter=30.1, vF=(1+p.vLocal/100), vNP=p.tripsNP/trips26;
+  const C27={nacter:R27.nacter*(1-p.mNacter/100),bun:R27.bun*(1-p.mBun/100),locter:R27.locter*(1-mLocter/100),
+    varNP:C26.varNP*vNP*(1+p.comb/100),varLoc:C26.varLoc*vF*(1+p.comb/100),varBog:C26.varBog*(1+p.vBog/100)*(1+p.ipcC/100),
+    persOp:C26.persOp*(1+p.sal/100),seg:C26.seg*(1+p.ipcC/100),ind:C26.ind*(1+p.ipcC/100)*vF,mant:C26.mant*(1+p.ipcC/100)*(0.5+0.5*vNP)};
+  const A26={pers:a(D.adm9.pers),da:a(D.adm9.da),otros:a(D.adm9.otros)};
+  const A27={pers:A26.pers*(1+p.sal/100),da:A26.da,otros:A26.otros*(1+p.ipcC/100)};
+  const int27=DS.int.slice(2).reduce((s,x)=>s+x,0)+27.4;
+  const N26={ing:a(D.noop9.ing),int:a(D.noop9.int),comis:a(D.noop9.fin-D.noop9.int),div:a(D.noop9.div+D.noop9.ext)};
+  const rev26=sum(R26),rev27=sum(R27);
+  const N27={ing:N26.ing*0.95,int:int27,comis:N26.comis*(1+p.ipcC/100),div:N26.div*(rev27/rev26)};
+  const pl=(R,C,A,N)=>{const rev=sum(R),terc=C.nacter+C.bun+C.locter,varF=C.varNP+C.varLoc+C.varBog,cf=C.persOp+C.seg+C.ind+C.mant,costo=terc+varF+cf,ub=rev-costo,adm=A.pers+A.otros,uo=ub-adm-A.da,uai=uo+N.ing-N.int-N.comis-N.div,tax=Math.max(0,uai*0.35);
+    return {R,C,rev,terc,varF,cf,costo,ub,mb:ub/rev,admCash:adm,da:A.da,uo,ing:N.ing,int:N.int,otrosNo:N.comis+N.div,uai,tax,un:uai-tax,ebitda:uo+A.da,mu:uai/rev,
+      mTerc:(R.nacter-C.nacter)+(R.bun-C.bun)+(R.locter-C.locter),mFlota:(R.local+R.nacprop+R.bog)-(varF+cf)};};
+  const P26=pl(R26,C26,A26,N26),P27=pl(R27,C27,A27,N27);
+  const varC=P27.terc+P27.varF+N27.div, cm=(P27.rev-varC)/P27.rev, fixed=P27.cf+P27.admCash+P27.da+N27.int+N27.comis-N27.ing, be=fixed/cm;
+  // Q4 2026 cash
+  const uaiQ4=P26.uai-D.uai9, capQ4=DS.cap.slice(0,2).reduce((s,x)=>s+x,0), intQ4=DS.int.slice(0,2).reduce((s,x)=>s+x,0);
+  let cash=D.cash_sep+uaiQ4+A26.da/6+(N26.int/6-intQ4)-capQ4-p.pacheco/6;
+  const fundQ4=Math.max(0,D.piso-cash); cash+=fundQ4; const cash26=cash;
+  // 2027 monthly
+  const avg=D.monthsRev.reduce((s,x)=>s+x,0)/D.monthsRev.length, idx=[...D.monthsRev.map(x=>x/avg),1,1], isum=idx.reduce((s,x)=>s+x,0);
+  const retenc=0.011*rev27, rentaPago=Math.max(0,P26.tax-0.011*rev26);
+  const tercC26=C26.nacter+C26.bun+C26.locter, tercC27=C27.nacter+C27.bun+C27.locter;
+  const dWC=(rev27-rev26)*(670.5/rev26)-(tercC27-tercC26)*(1165.4/tercC26);
+  const months=[]; let fund=0, opT=0, intT=0, capT=0;
+  const opYear=P27.ebitda+N27.ing-N27.comis-N27.div;
+  for(let m=0;m<12;m++){
+    const sh=idx[m]/isum, intm=DS.int[2+m]+27.4/12, capm=DS.cap[2+m];
+    const op=opYear*sh-retenc/12-(m===3?rentaPago:0)-dWC/12-p.pacheco/12-p.capex/12+((p.devol&&m===6)?331:0);
+    let after=cash+op-intm-capm, f=0; if(after<D.piso){f=D.piso-after;} cash=after+f; fund+=f; opT+=op; intT+=intm; capT+=capm;
+    const rev={}; for(const k in R27) rev[k]=R27[k]*sh;
+    months.push({m,rev,revT:rev27*sh,ebitda:P27.ebitda*sh,op,int:intm,cap:capm,f,cash});
+  }
+  const cap27=DS.cap.slice(2).reduce((s,x)=>s+x,0);
+  const fundNet=Math.max(0,fund-Math.max(0,cash-D.piso));
+  return {fundNet,p,R26,R27,P26,P27,trips26,tkt26,int27,cap27,capQ4,intQ4,fundQ4,cash26,fund27:fund,months,be,cm,fixed,dscr:P27.ebitda/(cap27+int27),
+    retenc,rentaPago,dWC,opT,intT,capT,cashEnd:cash};
+}
+
+// ===================== HELPERS =====================
+const $=id=>document.getElementById(id);
+const nf0=new Intl.NumberFormat('es-CO',{maximumFractionDigits:0}), nf1=new Intl.NumberFormat('es-CO',{minimumFractionDigits:1,maximumFractionDigits:1});
+const f0=x=>(x<0?'−':'')+nf0.format(Math.abs(Math.round(x)));
+const f1=x=>(x<0?'−':'')+nf1.format(Math.abs(x));
+const pc=(x,d=1)=>(x<0?'−':'')+new Intl.NumberFormat('es-CO',{minimumFractionDigits:d,maximumFractionDigits:d}).format(Math.abs(x*100))+'%';
+const sg=(x,fn=f0)=>(x>0?'+':'')+fn(x);
+const pill=(t,c)=>`<span class="pill ${c}">${t}</span>`;
+const svgNS='http://www.w3.org/2000/svg';
+function tipBind(holder){
+  let tip=holder.querySelector('.tooltip'); if(!tip){tip=document.createElement('div');tip.className='tooltip';holder.appendChild(tip);}
+  holder.querySelectorAll('[data-tip]').forEach(el=>{
+    el.addEventListener('mousemove',e=>{const r=holder.getBoundingClientRect();tip.textContent=el.getAttribute('data-tip');tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';tip.style.opacity=1;});
+    el.addEventListener('mouseleave',()=>tip.style.opacity=0);
+  });
+}
+function niceMax(v){const p=Math.pow(10,Math.floor(Math.log10(v)));const n=v/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p;}
+
+// bar chart with budget line (monthly)
+function barBudget(holder,vals,bud,color,labels,W=560){
+  const H=210,L=44,R=10,Tp=14,B=24, n=vals.length, max=niceMax(Math.max(bud,...vals)*1.08), min=Math.min(0,...vals);
+  const y=v=>Tp+(H-Tp-B)*(1-(v-min)/(max-min)), bw=(W-L-R)/n;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Gráfico mensual">`;
+  for(let i=0;i<=4;i++){const v=min+(max-min)*i/4;s+=`<line class="gridline" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-label" x="${L-6}" y="${y(v)+3}" text-anchor="end">${f0(v)}</text>`;}
+  vals.forEach((v,i)=>{const x=L+i*bw+bw*0.18,w=bw*0.64;const y0=y(Math.max(0,v)),h=Math.abs(y(v)-y(0));
+    s+=`<rect x="${x}" y="${y0}" width="${w}" height="${Math.max(1,h)}" rx="3" fill="${v>=bud?color:'color-mix(in srgb, '+color+' 55%, transparent)'}" data-tip="${labels[i]}: ${f1(v)} · ${pc(v/bud-1)} vs ppto"/>`;
+    s+=`<text class="axis-label" x="${x+w/2}" y="${H-8}" text-anchor="middle">${labels[i]}</text>`;});
+  s+=`<line x1="${L}" x2="${W-R}" y1="${y(bud)}" y2="${y(bud)}" stroke="var(--ink-2)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  s+=`<line class="baseline" x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+  holder.innerHTML=s; tipBind(holder);
+}
+
+// ===================== STATIC SECTIONS (2026 real) =====================
+function renderStatic(rb){
+  const cump=D.rev9tot/D.budget9tot;
+  $('b-cump').textContent=pc(cump,0); $('b-uai').textContent=pc(D.uai9/D.budget9uai,0);
+  const mb26=(D.rev9tot-6546.31)/D.rev9tot;
+  $('kpi2026').innerHTML=[
+    {l:'Ingresos ene–oct 2026',v:f1(D.rev9tot),s:`${pill(pc(cump,1)+' del ppto','warn')} ${pill(sg(D.rev9tot/D.rev9tot25-1,x=>pc(x))+' vs 2025','good')}`},
+    {l:'Utilidad antes de impuestos',v:f1(D.uai9),s:`${pill(pc(D.uai9/D.budget9uai,0)+' del ppto','bad')} Ppto 10 meses: ${f1(D.budget9uai)}`},
+    {l:'Margen bruto',v:pc(mb26),s:`${pill(sg((mb26-D.y25.ub/D.y25.rev)*100,x=>nf1.format(x))+' pp','bad')} ${pc(D.y25.ub/D.y25.rev)} en 2025 ajustado`},
+    {l:'Caja al 31-oct',v:f1(D.cash_sep),s:`${pill('Préstamos del grupo: '+f0(D.fondeo9),'bad')} ene–oct · incluye 80 de un particular`},
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-value num">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+  barBudget($('ch-ing'),D.monthsRev,D.budMonthRev,'var(--blue)',MES);
+  barBudget($('ch-uai'),D.monthsUAI,D.budMonthUAI,'var(--aqua)',MES,400);
+
+  // execution table
+  let t=`<thead><tr><th class="name-col">Línea</th><th>Ppto 10 m</th><th>Real 10 m</th><th>Cumpl.</th><th style="min-width:140px;text-align:left">Avance anual</th><th>Real 10 m 2025</th><th>Var. vs 2025</th></tr></thead><tbody>`;
+  let tb=0,tr=0,t25=0;
+  LINES.forEach(L=>{const b=D.budget26[L.k]*10/12,r=D.rev9[L.k],r25=D.rev9_25[L.k];tb+=b;tr+=r;t25+=r25;const c=r/b;
+    const wAnn=Math.min(100,r/D.budget26[L.k]*100);
+    t+=`<tr><td class="name"><span class="dot" style="background:${L.c}"></span>${L.n}<small>${L.s}</small></td><td class="val">${f1(b)}</td><td class="val">${f1(r)}</td><td class="val">${pill(pc(c,0),c>=1?'good':c>=0.85?'warn':'bad')}</td>
+    <td><div class="meter" title="${pc(r/D.budget26[L.k],0)} del presupuesto anual"><b style="width:${wAnn}%;background:${L.c}"></b><s style="left:83.3%"></s></div></td>
+    <td class="val muted">${f1(r25)}</td><td class="val ${r>=r25?'delta-pos':'delta-neg'}">${sg(r/r25-1,x=>pc(x,0))}</td></tr>`;});
+  t+=`<tr class="total-row"><td class="name">Total ingresos operacionales</td><td class="val">${f1(tb)}</td><td class="val">${f1(tr)}</td><td class="val">${pill(pc(tr/tb,0),'warn')}</td><td><div class="meter"><b style="width:${tr/10293.4*100}%;background:var(--ink-2)"></b><s style="left:83.3%"></s></div></td><td class="val muted">${f1(t25)}</td><td class="val delta-pos">${sg(tr/t25-1,x=>pc(x,0))}</td></tr></tbody>`;
+  $('t-exec').innerHTML=t+``;
+
+  // margin table
+  const own9={rev:D.rev9.local+D.rev9.nacprop+D.rev9.bog,cost:D.cost9.varNP+D.cost9.varLoc+D.cost9.varBog+D.cost9.persOp+D.cost9.seg+D.cost9.ind+D.cost9.mant};
+  const rows=[
+    {n:'Nacional · vehículos de terceros',c:'var(--orange)',r:D.rev9.nacter,k:D.cost9.nacter},
+    {n:'Agencia Buenaventura',c:'var(--yellow)',r:D.rev9.bun,k:D.cost9.bun},
+    {n:'Local terceros · CTG y BQ',c:'var(--aqua)',r:D.rev9.locter,k:D.cost9.locter},
+    {n:'Flota propia · local, nacional y Bogotá',c:'var(--blue)',r:own9.rev,k:own9.cost,sub:true},
+  ];
+  let m=`<thead><tr><th class="name-col">Línea</th><th>Ingreso</th><th>Costo directo</th><th>Margen</th><th>% margen</th><th>% del margen total</th></tr></thead><tbody>`;
+  const totM=rows.reduce((s,r)=>s+r.r-r.k,0);
+  rows.forEach(r=>{const mg=r.r-r.k;m+=`<tr><td class="name"><span class="dot" style="background:${r.c}"></span>${r.n}</td><td class="val">${f1(r.r)}</td><td class="val">${f1(r.k)}</td><td class="val">${f1(mg)}</td><td class="val">${pc(mg/r.r)}</td><td class="val muted">${pc(mg/totM,0)}</td></tr>`;
+    if(r.sub){[['Carga local propia',D.rev9.local],['Nacional propios',D.rev9.nacprop],['Agencia Bogotá',D.rev9.bog]].forEach(([n,v])=>m+=`<tr class="sub-row"><td class="name">${n}</td><td class="val muted">${f1(v)}</td><td class="val muted">·</td><td class="val muted">·</td><td class="val muted">·</td><td class="val muted"></td></tr>`);}});
+  const totR=rows.reduce((s,r)=>s+r.r,0);
+  m+=`<tr class="total-row"><td class="name">Utilidad bruta</td><td class="val">${f1(totR)}</td><td class="val">${f1(totR-totM)}</td><td class="val">${f1(totM)}</td><td class="val">${pc(totM/totR)}</td><td class="val muted">100%</td></tr></tbody>`;
+  $('t-margin').innerHTML=m;
+  const tercShare=(D.rev9.nacter+D.rev9.bun+D.rev9.locter)/totR;
+  $('read-mix').innerHTML=`Terceros: <b>${pc(tercShare,0)}</b> del ingreso (${pc((2666.3+1089.8+184.8)/D.y25.rev,0)} en 2025).`;
+
+  // mix chart
+  const mixRows=[{n:'Nacional terceros',c:'var(--orange)',r:D.rev9.nacter,mg:(D.rev9.nacter-D.cost9.nacter)/D.rev9.nacter},{n:'Flota propia',c:'var(--blue)',r:own9.rev,mg:(own9.rev-own9.cost)/own9.rev},{n:'Buenaventura',c:'var(--yellow)',r:D.rev9.bun,mg:(D.rev9.bun-D.cost9.bun)/D.rev9.bun},{n:'Local terceros',c:'var(--aqua)',r:D.rev9.locter,mg:(D.rev9.locter-D.cost9.locter)/D.rev9.locter}];
+  const W=460,rh=34,H=mixRows.length*rh+6,Lx=118,maxR=Math.max(...mixRows.map(r=>r.r));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mezcla de ingresos">`;
+  mixRows.forEach((r,i)=>{const y=i*rh+6,w=(W-Lx-90)*r.r/maxR;s+=`<text x="0" y="${y+15}" style="font-family:var(--f-body);font-size:12px;fill:var(--ink)">${r.n}</text><rect x="${Lx}" y="${y+3}" width="${w}" height="16" rx="3" fill="${r.c}"/><text class="val-label" x="${Lx+w+6}" y="${y+15}">${pc(r.r/totR,0)} · ${pc(r.mg)} mg</text>`;});
+  $('ch-mix').innerHTML=s+'</svg>';
+
+  // clients
+  const ct=D.clients.reduce((s,x)=>s+x[1],0); let acc=0;
+  $('t-cli').innerHTML=`<thead><tr><th class="name-col">Cliente</th><th>Ingreso</th><th>%</th><th>% acum.</th></tr></thead><tbody>`+D.clients.map(([n,v],i)=>{acc+=v;const last=n==='Otros';return `<tr${i===0?' class="hl"':''}><td class="name">${n}</td><td class="val">${f1(v)}</td><td class="val">${pc(v/ct)}</td><td class="val muted">${last?'':pc(acc/ct,0)}</td></tr>`;}).join('')+'</tbody>';
+
+  // nacional propios
+  const np=D.npMonth; const Wn=460,Hn=170,Ln=30,Bn=22,Tn=12,bw=(Wn-Ln-6)/9,ymax=30, yN=v=>Tn+(Hn-Tn-Bn)*(1-v/ymax);
+  let sn=`<svg viewBox="0 0 ${Wn} ${Hn}" role="img" aria-label="Viajes por mes nacional propios">`;
+  [0,10,20,30].forEach(v=>sn+=`<line class="gridline" x1="${Ln}" x2="${Wn-6}" y1="${yN(v)}" y2="${yN(v)}"/><text class="axis-label" x="${Ln-6}" y="${yN(v)+3}" text-anchor="end">${v}</text>`);
+  np.forEach((r,i)=>{const x=Ln+i*bw+bw*.2,w=bw*.6;sn+=`<rect x="${x}" y="${yN(r[2])}" width="${w}" height="${yN(0)-yN(r[2])}" rx="3" fill="var(--violet)" data-tip="${MES[i]}: ${r[2]} viajes · ${f1(r[0])}"/><text class="val-label" x="${x+w/2}" y="${yN(r[2])-4}" text-anchor="middle">${r[2]}</text><text class="axis-label" x="${x+w/2}" y="${Hn-6}" text-anchor="middle">${MES[i]}</text>`;});
+  sn+=`<line x1="${Ln}" x2="${Wn-6}" y1="${yN(25)}" y2="${yN(25)}" stroke="var(--ink-2)" stroke-dasharray="5 4" stroke-width="1.5"/></svg>`;
+  $('ch-np').innerHTML=`<div class="chart-holder">${sn}</div>`; tipBind($('ch-np').firstChild);
+  const npR=np.reduce((s,r)=>s+r[0],0),npC=np.reduce((s,r)=>s+r[1],0),npT=np.reduce((s,r)=>s+r[2],0);
+  $('t-np').innerHTML=`<tbody>
+   <tr><td class="name">Viajes ene–oct</td><td class="val">${npT} de 250</td></tr>
+   <tr><td class="name">Uso de capacidad</td><td class="val">${pill(pc(npT/250,0),'warn')}</td></tr>
+   <tr><td class="name">Flete promedio por viaje</td><td class="val">${f1(npR/npT)}</td></tr>
+   <tr><td class="name">Costo directo por viaje<small>Combustible, peajes, urea, viáticos, descargue</small></td><td class="val">${f1(npC/npT)}</td></tr>
+   <tr><td class="name">Margen por viaje antes de fijos</td><td class="val">${pc((npR-npC)/npR)}</td></tr>
+   <tr><td class="name">Fijo por vehículo al mes<small>Leasing, personal, seguros (modelo de la línea)</small></td><td class="val">26,2</td></tr>
+   <tr class="total-row"><td class="name">Cada viaje adicional al mes aporta</td><td class="val">≈ ${f1((npR-npC)/npT*12)} al año</td></tr></tbody>`;
+}
+
+// ===================== DYNAMIC (scenario) =====================
+let current='base', P={...SCN.base};
+function renderDrivers(){
+  $('drivers').innerHTML=DRV.map(d=>d.type==='chk'?`<div class="drv"><label class="chk" for="d-${d.k}"><input type="checkbox" id="d-${d.k}" ${P[d.k]?'checked':''}> ${d.l}</label></div>`
+   :`<div class="drv"><label for="d-${d.k}">${d.l}<output id="o-${d.k}">${fmtDrv(d,P[d.k])}</output></label><input type="range" id="d-${d.k}" min="${d.min}" max="${d.max}" step="${d.step}" value="${P[d.k]}"><small>${d.h}</small></div>`).join('');
+  DRV.forEach(d=>{const el=$('d-'+d.k);el.addEventListener('input',()=>{P[d.k]=d.type==='chk'?el.checked:+el.value;if(d.type!=='chk')$('o-'+d.k).textContent=fmtDrv(d,P[d.k]);current='custom';document.querySelectorAll('#seg button').forEach(b=>b.classList.remove('active'));$('scn-desc').textContent='Escenario personalizado';update();});});
+}
+function fmtDrv(d,v){return d.u==='%'?(d.k.startsWith('v')&&v>0?'+':'')+nf1.format(v)+'%':String(v);}
+document.querySelectorAll('#seg button').forEach(b=>b.addEventListener('click',()=>{current=b.dataset.s;P={...SCN[current]};document.querySelectorAll('#seg button').forEach(x=>x.classList.toggle('active',x===b));$('scn-desc').textContent=SCN[current].d;renderDrivers();update();}));
+
+function update(){
+  const r=run(P), P26=r.P26, P27=r.P27;
+  const fundTot=r.fundQ4+r.fund27;
+  // ---- messages
+  const rb=run(SCN.base), rc=run(SCN.conservador);
+  $('msgs').innerHTML=[
+    ['var(--critical)','Margen bruto',pc(D.y25.ub/D.y25.rev)+' → '+pc(P26.mb),'2025 ajustado → 2026'],
+    ['var(--critical)','Préstamos del grupo ene–oct 2026',f0(D.fondeo9),'Plan para todo 2026: '+f0(D.pres26.fondeo)],
+    ['var(--warning)','Créditos en mora o vencidos (nov)',D.debt.filter(d=>d.mora).length+' de '+D.debt.length,'Cobertura 2027: '+nf1.format(rb.dscr)+'x'],
+    ['var(--blue)','Utilidad 2027 base',f0(rb.P27.uai),'Presentado: '+f0(D.pres27.uai)],
+  ].map(([c,l,v,e])=>`<div class="chip" style="--c:${c}"><span>${l}</span><b>${v}</b><em>${e}</em></div>`).join('');
+
+  // ---- landing 2026
+  $('kpi-land').innerHTML=[
+    {l:'Ingresos 2026 estimados',v:f0(P26.rev),s:`Presentado: ${f0(D.pres26.rev)} ${pill(pc(P26.rev/D.pres26.rev-1,1),'warn')}`},
+    {l:'Utilidad antes de impuestos 2026',v:f0(P26.uai),s:`Presentado: ${f0(D.pres26.uai)} ${pill(pc(P26.uai/D.pres26.uai-1,0),'bad')}`},
+    {l:'Caja a diciembre 2026',v:f0(r.cash26),s:`Presentado: ${f0(D.pres26.caja)} · con fondeo adicional de ${f0(r.fundQ4)}`},
+    {l:'Préstamos del grupo ene–oct',v:f0(D.fondeo9),s:`Plan para todo 2026: ${f0(D.pres26.fondeo)} ${pill('+'+f0(D.fondeo9-D.pres26.fondeo),'bad')}`},
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-value num">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+  // ---- KPIs 2027
+  const g=P27.rev/P26.rev-1;
+  $('kpi27').innerHTML=[
+    {l:'Ingresos 2027',v:f0(P27.rev),s:pill(sg(g,x=>pc(x,1))+' vs 2026',g>=0?'good':'bad')},
+    {l:'Margen bruto',v:pc(P27.mb),s:pill(sg((P27.mb-P26.mb)*100,x=>nf1.format(x))+' pp',P27.mb>=P26.mb?'good':'bad')},
+    {l:'EBITDA',v:f0(P27.ebitda),s:`${pc(P27.ebitda/P27.rev)} del ingreso`},
+    {l:'Utilidad antes de imp.',v:f0(P27.uai),s:pill(sg(P27.uai-P26.uai)+' vs 2026',P27.uai>=P26.uai?'good':'bad')},
+    {l:'Cobertura de deuda',v:nf1.format(r.dscr)+'x',s:pill(r.dscr>=1.2?'Cubre':'No cubre',r.dscr>=1.2?'good':r.dscr>=1?'warn':'bad')+' EBITDA / servicio'},
+    {l:'Fondeo requerido 2027',v:f0(r.fund27),s:pill(r.fund27>0?'Requiere apoyo':'Autofinanciado',r.fund27>0?'bad':'good')+` Neto al cierre: ${f0(r.fundNet)} · más ${f0(r.fundQ4)} en nov–dic 26`},
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-value num">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+
+  // ---- P&G table
+  const a9=x=>x; const C9=D.cost9;
+  const real9={rev:D.rev9tot,terc:C9.nacter+C9.bun+C9.locter,varF:C9.varNP+C9.varLoc+C9.varBog,cf:C9.persOp+C9.seg+C9.ind+C9.mant,admCash:D.adm9.pers+D.adm9.otros,da:D.adm9.da,ing:D.noop9.ing,int:D.noop9.int,otrosNo:D.noop9.fin-D.noop9.int+D.noop9.div+D.noop9.ext};
+  real9.costo=real9.terc+real9.varF+real9.cf; real9.ub=real9.rev-real9.costo; real9.uo=real9.ub-real9.admCash-real9.da; real9.uai=real9.uo+real9.ing-real9.int-real9.otrosNo; real9.ebitda=real9.uo+real9.da;
+  const Y25=D.y25, Pr=D.pres27;
+  const rowsP=[
+    ['Ingresos operacionales','rev',Y25.rev,Pr.rev,'b'],
+    ['Costo subcontratación terceros','terc',null,null,'s'],
+    ['Costo variable flota propia','varF',null,null,'s'],
+    ['Costo fijo de operación','cf',null,null,'s',`Conductores, seguros, mantenimiento, patios`],
+    ['Utilidad bruta','ub',Y25.ub,null,'t'],
+    ['Margen bruto','mb',Y25.ub/Y25.rev,null,'p'],
+    ['Gastos de administración','admCash',null,null,'s'],
+    ['Depreciación y amortización','da',null,null,'s'],
+    ['Utilidad operacional','uo',null,null,'t'],
+    ['Ingresos no operacionales','ing',Y25.noop,null,'s'],
+    ['Intereses','int',564.3,Pr.int,'s'],
+    ['Comisiones, GMF y otros','otrosNo',null,null,'s'],
+    ['Utilidad antes de impuestos','uai',Y25.uai,Pr.uai,'h'],
+    ['Margen antes de impuestos','mu',Y25.uai/Y25.rev,Pr.uai/Pr.rev,'p'],
+    ['Impuesto de renta (35%)','tax',Y25.uai-Y25.un,null,'s'],
+    ['Utilidad neta','un',Y25.un,null,'t'],
+    ['EBITDA','ebitda',null,null,'b'],
+  ];
+  real9.mb=real9.ub/real9.rev; real9.mu=real9.uai/real9.rev;
+  const cell=(v,p)=>v==null?'<td class="val muted">·</td>':`<td class="val">${p?pc(v):f1(v)}</td>`;
+  let tp=`<thead><tr><th class="name-col"></th><th>Real 2025*</th><th>Real ene–oct 26</th><th>Cierre 2026e</th><th class="proj">2027</th><th>Var. 27/26</th><th>Presentado 2027</th></tr></thead><tbody>`;
+  rowsP.forEach(([n,k,y25,pr,ty,sub])=>{const isP=ty==='p';const v26=P26[k],v27=P27[k];const neg=['terc','varF','cf','admCash','da','int','otrosNo','tax'].includes(k);
+    const dv=isP?(v27-v26)*100:(v26?v27/v26-1:0);
+    const dcls=isP?(dv>=0?'delta-pos':'delta-neg'):((neg?dv<=0:dv>=0)?'delta-pos':'delta-neg');
+    tp+=`<tr class="${ty==='t'||ty==='h'?'total-row':''} ${ty==='h'?'hl':''}"><td class="name">${n}${sub?`<small>${sub}</small>`:''}</td>${cell(y25,isP)}${cell(k==='tax'||k==='un'?null:real9[k],isP)}${cell(v26,isP)}<td class="val proj"><b>${isP?pc(v27):f1(v27)}</b></td><td class="val ${dcls}">${isP?sg(dv,x=>nf1.format(x))+' pp':sg(dv,x=>pc(x,0))}</td>${cell(pr,isP)}</tr>`;});
+  $('t-pyg').innerHTML=tp+`</tbody><caption style="caption-side:bottom;text-align:left;font-size:11px;color:var(--muted);padding-top:8px">* 2025 sin la facturación a Asercol de dic-2025 (150), que no corresponde a operación. Libros: ingresos 9.021,8 · UAI 519,2.</caption>`;
+
+  // ---- waterfall
+  const steps=[['UAI 2026e',P26.uai,'base'],['Líneas terceros',P27.mTerc-P26.mTerc],['Flota propia',P27.mFlota-P26.mFlota],['Admin. y D&A',-(P27.admCash+P27.da-P26.admCash-P26.da)],['Intereses',P26.int-P27.int],['Otros no oper.',(P27.ing-P27.otrosNo)-(P26.ing-P26.otrosNo)],['UAI 2027',P27.uai,'base']];
+  wf($('ch-wf'),steps);
+
+  // ---- revenue by line
+  let rv=`<thead><tr><th class="name-col">Línea</th><th>2025*</th><th>2026e</th><th class="proj">2027</th><th>Var.</th></tr></thead><tbody>`;
+  LINES.forEach(L=>{const a=D.y2025[L.k],b=r.R26[L.k],c=r.R27[L.k];rv+=`<tr><td class="name"><span class="dot" style="background:${L.c}"></span>${L.n}</td><td class="val muted">${f0(a)}</td><td class="val">${f0(b)}</td><td class="val proj"><b>${f0(c)}</b></td><td class="val ${c>=b?'delta-pos':'delta-neg'}">${sg(c/b-1,x=>pc(x,0))}</td></tr>`;});
+  rv+=`<tr class="total-row"><td class="name">Total</td><td class="val">${f0(sum(D.y2025))}</td><td class="val">${f0(P26.rev)}</td><td class="val proj">${f0(P27.rev)}</td><td class="val ${P27.rev>=P26.rev?'delta-pos':'delta-neg'}">${sg(P27.rev/P26.rev-1,x=>pc(x,0))}</td></tr></tbody>`;
+  $('t-rev').innerHTML=rv;
+
+  // ---- cash chart
+  cashChart($('ch-cash'),r);
+  // uses & sources
+  const rtl=r.retenc, opBefore=P27.ebitda+P27.ing-P27.otrosNo;
+  const us=[
+    ['cat','Fuentes'],
+    ['EBITDA',P27.ebitda],['Ingresos no operacionales netos de comisiones y GMF',P27.ing-P27.otrosNo],
+    ['Devolución saldo a favor de renta',P.devol?331:0],['Fondeo requerido (grupo u otra fuente)',r.fund27,'hl'],
+    ['cat','Usos'],
+    ['Abonos a capital · bancos y leasing',-r.cap27],['Intereses',-r.int27],['Retenciones y renta 2026',-(rtl+r.rentaPago)],['Gastos pagados por anticipado (J. Pacheco)',-P.pacheco],['Capital de trabajo e inversiones',-(r.dWC+P.capex)],
+  ];
+  let ut='<tbody>'; let chk=0;
+  us.forEach(x=>{if(x[0]==='cat'){ut+=`<tr class="cat-row"><td colspan="2">${x[1]}</td></tr>`;return;} chk+=x[1]; ut+=`<tr class="${x[2]||''}"><td class="name">${x[0]}</td><td class="val ${x[1]<0?'delta-neg':''}">${f1(x[1])}</td></tr>`;});
+  ut+=`<tr class="total-row"><td class="name">Variación de caja en el año</td><td class="val">${f1(chk)}</td></tr><tr><td class="name muted">Caja inicial · caja final</td><td class="val muted">${f0(r.cash26)} · ${f0(r.cashEnd)}</td></tr>${r.cashEnd-D.piso>1?`<tr><td class="name muted">Fondeo neto al cierre</td><td class="val muted">${f0(r.fundNet)}</td></tr>`:''}</tbody>`;
+  $('t-uses').innerHTML=ut;
+
+  // ---- monthly table
+  let mt=`<thead><tr><th class="name-col"></th>${MES.map(m=>`<th>${m}</th>`).join('')}<th class="proj">Total 2027</th></tr></thead><tbody><tr class="cat-row"><td colspan="14">Ingresos por línea</td></tr>`;
+  LINES.forEach(L=>{mt+=`<tr><td class="name"><span class="dot" style="background:${L.c}"></span>${L.n}</td>${r.months.map(m=>`<td class="val">${f1(m.rev[L.k])}</td>`).join('')}<td class="val proj">${f0(r.R27[L.k])}</td></tr>`;});
+  const mrow=(n,fn,tot,cls='',neg=false)=>`<tr class="${cls}"><td class="name">${n}</td>${r.months.map(m=>{const v=fn(m);return `<td class="val ${neg&&v>0?'delta-neg':''}">${f1(v)}</td>`;}).join('')}<td class="val proj">${f0(tot)}</td></tr>`;
+  mt+=mrow('Total ingresos',m=>m.revT,P27.rev,'total-row');
+  mt+=`<tr class="cat-row"><td colspan="14">Caja</td></tr>`;
+  mt+=mrow('Flujo operativo después de impuestos',m=>m.op,r.opT);
+  mt+=mrow('Intereses',m=>-m.int,-r.intT);
+  mt+=mrow('Abonos a capital',m=>-m.cap,-r.capT);
+  mt+=mrow('Fondeo requerido',m=>m.f,r.fund27,'hl',true);
+  mt+=mrow('Caja al cierre',m=>m.cash,r.cashEnd,'total-row');
+  $('t-month').innerHTML=mt+'</tbody>';
+
+  // ---- debt
+  const tot=DS.rows.reduce((s,d)=>s+d.saldo,0), moraN=DS.rows.filter(d=>d.mora).length, moraS=DS.rows.filter(d=>d.mora).reduce((s,d)=>s+d.saldo,0);
+  const ebitda26=P26.ebitda;
+  $('kpi-debt').innerHTML=[
+    {l:'Deuda con bancos, leasing y particular',v:f0(tot),s:`${f1(tot/ebitda26)}x EBITDA 2026e`},
+    {l:'Obligaciones con particulares del grupo',v:f0(D.asercol),s:`${pill('+'+f0(D.asercol-D.asercol_dec25)+' en 2026','bad')} sin plan de pagos`},
+    {l:'Créditos reportados en mora',v:`${moraN} de ${DS.rows.length}`,s:`${pill(f0(moraS)+' de saldo','bad')} incluye el leasing principal`},
+    {l:'Servicio de la deuda 2027',v:f0(r.cap27+r.int27),s:`Capital ${f0(r.cap27)} · intereses ${f0(r.int27)}`},
+  ].map(k=>`<div class="kpi"><div class="kpi-label">${k.l}</div><div class="kpi-value num">${k.v}</div><div class="kpi-sub">${k.s}</div></div>`).join('');
+  let dt=`<thead><tr><th class="name-col">Obligación</th><th>Tipo</th><th>Estado (nov)</th><th>Vence</th><th>Saldo nov-26</th><th>Capital nov–dic 26</th><th class="proj">Capital 2027</th><th class="proj">Intereses 2027</th><th>Saldo dic-27</th></tr></thead><tbody>`;
+  const T={s:0,q:0,c:0,i:0,e:0};
+  DS.rows.forEach(d=>{T.s+=d.saldo;T.q+=d.cQ4;T.c+=d.c27;T.i+=d.i27;T.e+=d.fin27;const [y,m]=d.fin.split('-');dt+=`<tr><td class="name">${d.n}</td><td class="val muted" style="text-align:left">${d.t}</td><td class="val" style="text-align:left">${d.mora?pill('En mora','bad'):pill('Al día','good')}</td><td class="val muted">${MES[+m-1]}-${y.slice(2)}</td><td class="val">${f1(d.saldo)}</td><td class="val">${f1(d.cQ4)}</td><td class="val proj">${f1(d.c27)}</td><td class="val proj">${f1(d.i27)}</td><td class="val muted">${f1(d.fin27)}</td></tr>`;});
+  dt+=`<tr class="total-row"><td class="name">Total bancos, leasing y préstamo particular</td><td></td><td></td><td></td><td class="val">${f1(T.s)}</td><td class="val">${f1(T.q)}</td><td class="val proj">${f1(T.c)}</td><td class="val proj">${f1(T.i)}</td><td class="val">${f1(T.e)}</td></tr>`;
+  dt+=`<tr><td class="name">Particulares grupo (cta. 2195)<small>Sin abonos proyectados; intereses como en el flujo presentado</small></td><td class="val muted" style="text-align:left">Grupo</td><td class="val" style="text-align:left">${pill('Sin plan','warn')}</td><td class="val muted">·</td><td class="val">${f1(D.asercol)}</td><td class="val">0,0</td><td class="val proj">0,0</td><td class="val proj">27,4</td><td class="val">${f1(D.asercol+fundTot)}<small style="display:block;color:var(--muted);font-weight:400">si el fondeo sale del grupo</small></td></tr></tbody>`;
+  $('t-debt').innerHTML=dt;
+
+  // ---- breakeven
+  beChart($('ch-be'),r);
+  const ms=(P27.rev-r.be)/P27.rev;
+  $('read-be').innerHTML=`Margen de seguridad 2027: <b>${pc(ms,0)}</b> · 2026: ${pc((P26.rev-r.be)/P26.rev,0)}`;
+
+  // ---- sensitivity
+  const base=P27.uai, fundB=r.fund27;
+  const sens=[
+    ['Tarifas +1 punto',{tarifa:P.tarifa+1}],
+    ['Margen nacional terceros +1 punto',{mNacter:P.mNacter+1}],
+    ['10 viajes más de nacional propios',{tripsNP:Math.min(300,P.tripsNP+10)}],
+    ['Volumen carga local propia +5%',{vLocal:P.vLocal+5}],
+    ['Incremento salarial +1 punto',{sal:P.sal+1}],
+    ['Volumen nacional terceros −10%',{vNacter:P.vNacter-10}],
+    ['Combustible +5 puntos',{comb:P.comb+5}],
+  ];
+  $('t-sens').innerHTML=`<thead><tr><th class="name-col">Si…</th><th>Utilidad antes de imp.</th><th>Fondeo 2027</th></tr></thead><tbody>`+sens.map(([n,ch])=>{const x=run({...P,...ch});const d=x.P27.uai-base,df=x.fund27-fundB;return `<tr><td class="name">${n}</td><td class="val ${d>=0?'delta-pos':'delta-neg'}">${sg(d)}</td><td class="val ${df<=0?'delta-pos':'delta-neg'}">${sg(df)}</td></tr>`;}).join('')+'</tbody>';
+
+  // ---- decisions
+  const rDev=run({...P,devol:!P.devol}); const devImpact=Math.abs(rDev.fund27-r.fund27);
+  const rMg=run({...P,mNacter:Math.max(P.mNacter,20.5)}); const mgImpact=rMg.P27.uai-P27.uai;
+  const rNP=run({...P,tripsNP:300}); const npImpact=rNP.P27.uai-P27.uai;
+  const decs=[
+    {t:'urg',h:'Reperfilar la deuda en mora',p:`${D.debt.filter(d=>d.mora).length} obligaciones figuraban en mora en septiembre, entre ellas el leasing KPP (955,5 a octubre). Se propone negociar con Bancolombia y Banco de Bogotá un reperfilamiento a 36–48 meses, que baje el capital de 2027 (${f0(r.cap27)}) y evite intereses de mora y reportes negativos.`,i:`Capital 2027: ${f0(r.cap27)} · a 36–48 meses libera ≈ ${f0(r.cap27/2)}`},
+    {t:'urg',h:'Aprobar y documentar el fondeo del grupo',p:`Se requieren ${f0(r.fundQ4)} antes de diciembre y ${f0(r.fund27)} en 2027 en este escenario. Hoy el grupo ya presta ${f0(D.asercol)} sin plan de pagos ni intereses causados. Se recomienda documentarlo: pagaré, tasa, plazo y garantías, o convertir una parte en capital.`,i:`${f0(r.fundQ4)} nov–dic 26 + ${f0(r.fund27)} en 2027 · hoy ${f0(D.asercol)} sin plan de pagos`},
+    {t:'alta',h:'Pedir devolución del saldo a favor de renta',p:`Hay un saldo a favor de 331 que se puede solicitar a la DIAN. El trámite toma cerca de 50 días hábiles después de radicado. Además, implementar la autorretención para no seguir acumulando saldos a favor.`,i:`331 a la DIAN · mejora la caja 2027 en ${f0(devImpact)}`},
+    {t:'alta',h:'Margen mínimo en nacional terceros',p:`Es la línea más grande (${pc(r.R26.nacter/P26.rev,0)} del ingreso) y deja ${pc((D.rev9.nacter-D.cost9.nacter)/D.rev9.nacter)}. Ningún viaje por debajo de 18% sin aprobación, y meta de 20,5% renegociando fletes con los transportadores.`,i:mgImpact>0.5?`Piso 18% · meta 20,5% · +${f0(mgImpact)} de utilidad`:`Piso 18% · meta 20,5% (ya incluida)`},
+    {t:'med',h:'Flota nacional propia a 300 viajes',p:`Los 5 tractocamiones hicieron 226 viajes en 10 meses (90% de capacidad), con meses de 17, 18 y 22 viajes. Cada viaje adicional deja cerca de 2,8 de margen antes de fijos, que ya están pagados.`,i:npImpact>0.5?`Hoy 90% de uso · +${f0(npImpact)} de utilidad`:`Hoy 90% de uso (300 ya incluidos)`},
+    {t:'med',h:'Recuperar carga local y Buenaventura',p:`La carga local propia cayó 21% y Buenaventura 18% frente a ene–oct 2025. Los 5 clientes principales hacen ${pc(D.clients.slice(0,5).reduce((s,x)=>s+x[1],0)/D.clients.reduce((s,x)=>s+x[1],0),0)} del ingreso con detalle. Plan comercial con metas por línea y responsable, y acarreos locales en Bogotá para clientes de la agencia de aduanas (176 identificados).`,i:'Local −21% · Buenaventura −18% · top 5 clientes = 70%'},
+  ];
+  $('decs').innerHTML=decs.map(d=>`<div class="dec"><div class="dec-head"><h4>${d.h}</h4><span class="tag ${d.t}">${d.t==='urg'?'Urgente':d.t==='alta'?'Alta':'Media'}</span></div><div class="impact">${d.i}</div></div>`).join('');
+}
+
+function wf(holder,steps){
+  const W=460,H=250,L=8,R=8,T=18,B=58,n=steps.length,bw=(W-L-R)/n;
+  let run=0,lo=0,hi=0; const bars=steps.map(([n,v,t])=>{let y0,y1;if(t==='base'){y0=0;y1=v;run=v;}else{y0=run;y1=run+v;run=y1;}lo=Math.min(lo,y0,y1);hi=Math.max(hi,y0,y1);return {n,v,t,y0,y1};});
+  const max=hi*1.12, min=Math.min(0,lo*1.12), y=v=>T+(H-T-B)*(1-(v-min)/(max-min));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Puente de utilidad">`;
+  s+=`<line class="baseline" x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}"/>`;
+  bars.forEach((b,i)=>{const x=L+i*bw+bw*.16,w=bw*.68,top=y(Math.max(b.y0,b.y1)),h=Math.max(1.5,Math.abs(y(b.y0)-y(b.y1)));
+    const col=b.t==='base'?'var(--ink-2)':(b.v>=0?'var(--good)':'var(--critical)');
+    s+=`<rect x="${x}" y="${top}" width="${w}" height="${h}" rx="3" fill="${col}"/>`;
+    s+=`<text class="val-label" x="${x+w/2}" y="${top-5}" text-anchor="middle">${b.t==='base'?f0(b.v):sg(b.v)}</text>`;
+    if(i<n-1){s+=`<line x1="${x+w}" x2="${x+bw}" y1="${y(b.y1)}" y2="${y(b.y1)}" stroke="var(--border-strong)" stroke-dasharray="2 2"/>`;}
+    const words=b.n.split(' '); const lines=[];let cur='';words.forEach(wd=>{if((cur+' '+wd).trim().length>9){lines.push(cur.trim());cur=wd;}else cur+=' '+wd;});lines.push(cur.trim());
+    lines.slice(0,3).forEach((ln,j)=>s+=`<text class="axis-label" x="${x+w/2}" y="${H-B+14+j*11}" text-anchor="middle">${ln}</text>`);
+  });
+  holder.innerHTML=s+'</svg>';
+}
+function cashChart(holder,r){
+  const W=620,H=250,L=46,R=10,T=14,B=24,ms=r.months;
+  const pos=ms.map(m=>Math.max(0,m.op)+m.f), neg=ms.map(m=>m.int+m.cap);
+  const max=niceMax(Math.max(...pos,...neg,...ms.map(m=>m.cash))*1.05), min=-max*0.0;
+  const y=v=>T+(H-T-B)*(1-(v-min)/(max-min)), bw=(W-L-R)/12;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Caja mensual 2027">`;
+  for(let i=0;i<=4;i++){const v=max*i/4;s+=`<line class="gridline" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="axis-label" x="${L-6}" y="${y(v)+3}" text-anchor="end">${f0(v)}</text>`;}
+  ms.forEach((m,i)=>{const x=L+i*bw, w=bw*0.32;
+    const op=Math.max(0,m.op);
+    s+=`<rect x="${x+bw*0.14}" y="${y(op)}" width="${w}" height="${y(0)-y(op)}" rx="2" fill="var(--aqua)" data-tip="${MES[i]} · flujo operativo ${f1(m.op)}"/>`;
+    if(m.f>0) s+=`<rect x="${x+bw*0.14}" y="${y(op+m.f)}" width="${w}" height="${y(op)-y(op+m.f)}" rx="2" fill="var(--critical)" data-tip="${MES[i]} · fondeo ${f1(m.f)}"/>`;
+    const ds=m.int+m.cap; s+=`<rect x="${x+bw*0.14+w+2}" y="${y(ds)}" width="${w}" height="${y(0)-y(ds)}" rx="2" fill="var(--orange)" data-tip="${MES[i]} · servicio deuda ${f1(ds)}"/>`;
+    s+=`<text class="axis-label" x="${x+bw/2}" y="${H-8}" text-anchor="middle">${MES[i]}</text>`;
+  });
+  // cash line
+  let path=''; ms.forEach((m,i)=>{const cx=L+i*bw+bw/2;path+=(i?'L':'M')+cx+' '+y(m.cash);});
+  s+=`<path d="${path}" fill="none" stroke="var(--ink)" stroke-width="1.6"/>`;
+  ms.forEach((m,i)=>{const cx=L+i*bw+bw/2;s+=`<circle cx="${cx}" cy="${y(m.cash)}" r="${i===11?4:2.6}" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5" data-tip="${MES[i]} · caja ${f1(m.cash)}"/>`;});
+  s+=`<text class="val-label" x="${L+11*bw+bw/2}" y="${y(ms[11].cash)-9}" text-anchor="middle">caja ${f0(ms[11].cash)}</text>`;
+  s+=`<line class="baseline" x1="${L}" x2="${W-R}" y1="${y(0)}" y2="${y(0)}"/></svg>`;
+  holder.innerHTML=s; tipBind(holder);
+  holder.nextElementSibling.innerHTML=`<span><i style="background:var(--aqua)"></i>Flujo operativo después de impuestos</span><span><i style="background:var(--orange)"></i>Servicio de la deuda</span><span><i style="background:var(--critical)"></i>Fondeo requerido</span><span><i style="background:var(--ink);height:2px"></i>Caja al cierre</span>`;
+}
+function beChart(holder,r){
+  const W=460,H=150,L=8,R=8, P27=r.P27, max=Math.max(P27.rev,r.be,r.P26.rev)*1.12, x=v=>L+(W-L-R)*v/max;
+  const rows=[['Ingreso 2026e',r.P26.rev,'var(--slate)'],['Ingreso 2027',P27.rev,'var(--violet)'],['Punto de equilibrio',r.be,'var(--critical)']];
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Punto de equilibrio">`;
+  rows.forEach(([n,v,c],i)=>{const y=12+i*44;s+=`<text x="${L}" y="${y}" style="font-family:var(--f-body);font-size:12px;fill:var(--ink-2)">${n}</text><rect x="${L}" y="${y+6}" width="${x(v)-L}" height="18" rx="3" fill="${c}"/><text class="val-label" x="${x(v)+6}" y="${y+19}">${f0(v)}</text>`;});
+  s+=`<line x1="${x(r.be)}" x2="${x(r.be)}" y1="4" y2="${H-4}" stroke="var(--critical)" stroke-dasharray="4 3"/></svg>`;
+  holder.innerHTML=s;
+}
+
+renderStatic();
+$('scn-desc').textContent=SCN.base.d;
+renderDrivers();
+update();
+})();
+</script>
+
+</body>
+</html>
